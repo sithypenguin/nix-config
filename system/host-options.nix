@@ -2,7 +2,7 @@
 
 {
     options.mySystem = with lib; {
-        desktop = {
+        laptop = {
             enable = mkEnableOption "laptop envirnonment";
             envirnonment = mkOption {
                 type = types.enum [ "plasma6" "gnome" "hyprland" ];
