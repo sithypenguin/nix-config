@@ -7,5 +7,6 @@
         gaming.enable = true;
         gaming.steal = true;
         development.enable = true;
+        hardwaer.bluetooth = true;
     }
 }
