@@ -1,11 +1,12 @@
-# Network and connectivity configuration
-# Manages network interfaces, hostname, and Bluetooth settings
-{ config, pkgs, ... }:
+{ config, pkgs, lib, ... }:
 
 {
-    # Bluetooth configuration
-    hardware.bluetooth.enable = true;               # Enable Bluetooth support
-    
-    # Network configuration
-    networking.networkmanager.enable = true;       # Enable NetworkManager for network management
+  # Enable networking
+  networking.networkmanager.enable = true;
+
+  # Bluetooth configuration
+  config = lib.mkIf config.mySystem.hardware.bluetooth {
+    hardware.bluetooth.enable = true;
+    hardware.bluetooth.powerOnBoot = true;
+  };
 }
