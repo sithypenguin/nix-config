@@ -1,25 +1,20 @@
-# Audio system configuration
-# Configures PipeWire as the audio server, replacing PulseAudio
-{ config, pkgs, ... }:
+{ config, pkgs, lib, ... }:
 
 {
-    # Disable legacy PulseAudio in favor of PipeWire
-    services.pulseaudio.enable = false;             # Disable PulseAudio service
-    
-    # Real-time kit for better audio performance
-    security.rtkit.enable = true;                   # Enable RealtimeKit for low-latency audio
-    
-    # PipeWire audio server configuration
+  config = lib.mkIf config.mySystem.desktop.enable {
+    # Enable sound with pipewire.
+    security.rtkit.enable = true;
     services.pipewire = {
-        enable = true;                              # Enable PipeWire audio server
-        alsa.enable = true;                         # ALSA support for legacy applications
-        alsa.support32Bit = true;                   # 32-bit ALSA support for compatibility
-        pulse.enable = true;                        # PulseAudio compatibility layer
-        
-        # Optional JACK support for professional audio applications
-        #jack.enable = true;
-        
-        # Session manager (WirePlumber is now default)
-        #media-session.enable = true;
+      enable = true;
+      alsa.enable = true;
+      alsa.support32Bit = true;
+      pulse.enable = true;
+      # If you want to use JACK applications, uncomment this
+      #jack.enable = true;
+
+      # use the example session manager (no others are packaged yet so this is enabled by default,
+      # no need to redefine it in your config for now)
+      #media-session.enable = true;
     };
+  };
 }
