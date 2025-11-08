@@ -6,7 +6,6 @@
         ../../system/sysConfig.nix
         ../../system/audio.nix
         ../../system/display.nix
-        ../../system/sysConfig.nix
         ../../system/users.nix
         ../../general/steam.nix
         ../../system/connectivity.nix
