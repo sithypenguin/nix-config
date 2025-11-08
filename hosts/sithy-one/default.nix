@@ -3,12 +3,7 @@
 {
     imports = [
         ./hardware-configuration.nix
-        ../../system/sysConfig.nix
-        ../../system/audio.nix
-        ../../system/display.nix
-        ../../system/users.nix
-        ../../general/steam.nix
-        ../../system/connectivity.nix
+        ../../profiles/desktop.nix
     ];
 
     networking.hostName = "sithy-one";
