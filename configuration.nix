@@ -5,8 +5,15 @@
 { config, pkgs, ... }:
 
 {
-  imports =
-    [];
+  imports = [
+    ./system/host-options.nix
+    ./system/sysConfig.nix
+    ./system/audio.nix
+    ./system/display.nix
+    ./system/users.nix
+    ./system/connectivity.nix
+    ./general/steam.nix
+  ];
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
