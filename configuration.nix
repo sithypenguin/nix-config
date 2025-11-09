@@ -11,7 +11,7 @@
     ./system/audio.nix
     ./system/display.nix
     ./system/users.nix
-    ./system/connectivity.nix
+    ./system/bluetooth.nix
     ./system/networking.nix
     ./general/steam.nix
   ];
@@ -23,5 +23,4 @@
   # Before changing this value read the documentation for this option
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
   system.stateVersion = "25.05"; # Did you read the comment?
-
 }
