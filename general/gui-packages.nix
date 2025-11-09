@@ -14,6 +14,7 @@
         # Media and Entertainment
         vlc                   # Cross-platform media player and streaming server
         spotify               # Play music from the Spotify music service
+        ncspot                # Cross-platform ncurses Spotify client written in Rust, inspired by ncmpc and the likes
 
         # Communication
         discord               # All-in-one cross-platform voice and text chat for gamers

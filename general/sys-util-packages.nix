@@ -25,6 +25,7 @@
         
         # File and Disk Management
         ncdu                # Disk usage analyzer with an ncurses interface
+        duf                 # Disk Usage/Free Utility
         bat                 # Cat(1) clone with syntax highlighting and Git integration
         
         # Documentation and Help
