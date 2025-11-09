@@ -3,16 +3,26 @@
 { config, pkgs, lib, ... }:
 
 {
-    # X11 windowing system
-    services.xserver.enable = true;                 # Enable the X11 windowing system
-    
-    # Display and desktop environment
-    services.displayManager.sddm.enable = lib.mkIf (config.mySystem.desktop.environment == "plasma6") true;
-    services.desktopManager.plasma6.enable = lib.mkIf (config.mySystem.desktop.environment == "plasma6") true;
+    config = lib.mkIf (config.mySystem.laptop.enable || config.mySystem.desktop.enable) {
+        # X11 windowing system
+        services.xserver.enable = true;
+        
+        # Display and desktop environment - use laptop environment if laptop is enabled
+        services.displayManager.sddm.enable = lib.mkIf 
+            ((config.mySystem.laptop.enable && config.mySystem.laptop.environment == "plasma6") ||
+             (!config.mySystem.laptop.enable && config.mySystem.desktop.environment == "plasma6")) true;
+             
+        services.desktopManager.plasma6.enable = lib.mkIf 
+            ((config.mySystem.laptop.enable && config.mySystem.laptop.environment == "plasma6") ||
+             (!config.mySystem.laptop.enable && config.mySystem.desktop.environment == "plasma6")) true;
 
-    # Keyboard configuration for X11
-    services.xserver.xkb = {
-        layout = "us";      # US keyboard layout
-        variant = "";       # No keyboard variant (default US layout)
+        # Keyboard configuration for X11
+        services.xserver.xkb = {
+            layout = "us";      # US keyboard layout
+            variant = "";       # No keyboard variant (default US layout)
+        };
+
+        # Enable touchpad support for laptops
+        services.libinput.enable = lib.mkIf config.mySystem.laptop.enable true;
     };
 }

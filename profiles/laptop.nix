@@ -1,12 +1,12 @@
 { ... }:
 
 {
-    laptop = {
+    mySystem = {
         laptop.enable = true;
-        desktop.environment = "plasma6";
+        laptop.environment = "plasma6";
         gaming.enable = true;
-        gaming.steal = true;
+        gaming.steam = true;
         development.enable = true;
-        hardwaer.bluetooth = true;
-    }
+        hardware.bluetooth = true;
+    };
 }

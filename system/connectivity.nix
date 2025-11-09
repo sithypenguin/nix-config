@@ -2,7 +2,7 @@
 
 {
   # Enable networking
-  networking.networkmanager.enable = true;
+  #networking.networkmanager.enable = true;
 
   # Bluetooth configuration
   config = lib.mkIf config.mySystem.hardware.bluetooth {

@@ -1,7 +1,7 @@
 { config, pkgs, lib, ... }:
 
 {
-  config = lib.mkIf config.mySystem.desktop.enable {
+  config = lib.mkIf (config.mySystem.laptop.enable) {
     # Enable sound with pipewire.
     security.rtkit.enable = true;
     services.pipewire = {
