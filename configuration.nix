@@ -12,10 +12,9 @@
     ./system/display.nix
     ./system/users.nix
     ./system/connectivity.nix
+    ./system/networking.nix
     ./general/steam.nix
   ];
-
-  networking.networkmanager.enable = true;
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
