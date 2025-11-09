@@ -3,8 +3,8 @@
 {
     options.mySystem = with lib; {
         laptop = {
-            enable = mkEnableOption "laptop envirnonment";
-            envirnonment = mkOption {
+            enable = mkEnableOption "laptop environment";
+            environment = mkOption {
                 type = types.enum [ "plasma6" "gnome" "hyprland" ];
                 default = "plasma6";
                 description = "Laptop environment to use";
@@ -20,5 +20,9 @@
             enable = mkEnableOption "development tools";
         };
 
-    }
+        hardware = {
+            bluetooth = mkEnableOption "Bluetooth support";
+        };
+
+    };
 }
