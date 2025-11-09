@@ -3,7 +3,7 @@
 {
     imports = [
         ./hardware-configuration.nix
-        ../../profiles/desktop.nix
+        ../../profiles/laptop.nix
     ];
 
     networking.hostName = "sithy-one";
