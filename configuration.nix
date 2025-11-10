@@ -6,14 +6,7 @@
 
 {
   imports = [
-    ./system/host-options.nix
-    ./system/sysConfig.nix
-    ./system/audio.nix
-    ./system/display.nix
-    ./system/users.nix
-    ./system/bluetooth.nix
-    ./system/networking.nix
-    ./general/steam.nix
+    ./modules
   ];
 
   # This value determines the NixOS release from which the default

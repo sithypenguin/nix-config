@@ -5,9 +5,9 @@
 {
     # Import user-specific package and configuration modules
     imports = [
-        ../../general/sys-util-packages.nix  # System utility packages
-        ../../general/gui-packages.nix       # GUI packages
-        ../../general/tui-packages.nix       # TUI packages
+        ../../packages/sys-util-packages.nix  # System utility packages
+        ../../packages/gui-packages.nix       # GUI packages
+        ../../packages/tui-packages.nix       # TUI packages
     ];
 
     # Allow unfree packages for Home Manager
