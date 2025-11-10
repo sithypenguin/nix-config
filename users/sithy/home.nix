@@ -7,6 +7,7 @@
     imports = [
         ../../general/sys-util-packages.nix  # System utility packages
         ../../general/gui-packages.nix       # GUI packages
+        ../../general/tui-packages.nix       # TUI packages
     ];
 
     # Allow unfree packages for Home Manager
