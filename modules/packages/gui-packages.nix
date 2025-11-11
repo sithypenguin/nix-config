@@ -15,9 +15,11 @@
         vlc                   # Cross-platform media player and streaming server
         spotify               # Play music from the Spotify music service
 
+
         # Communication
         discord               # All-in-one cross-platform voice and text chat for gamers
         telegram-desktop      # Telegram Desktop messaging app
+        element-desktop       #A feature-rich client for Matrix.org
         
         # Productivity and Office
         libreoffice          # Comprehensive, professional-quality productivity suite, a variant of openoffice.org

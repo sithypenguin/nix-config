@@ -6,16 +6,8 @@
 
 {
   imports = [
-    ./system/host-options.nix
-    ./system/sysConfig.nix
-    ./system/audio.nix
-    ./system/display.nix
-    ./system/users.nix
-    ./system/connectivity.nix
-    ./general/steam.nix
+    ./modules
   ];
-
-  networking.networkmanager.enable = true;
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
@@ -24,5 +16,4 @@
   # Before changing this value read the documentation for this option
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
   system.stateVersion = "25.05"; # Did you read the comment?
-
 }

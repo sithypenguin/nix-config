@@ -19,16 +19,19 @@
         bmon                # Network bandwidth monitor
         clinfo              # Print all known information about all available OpenCL platforms and devices in the system
         isd                # TUI to interactively work with systemd units    
+        
         # Network Tools
         nettools            # A set of tools for controlling the network subsystem in Linux
         dig                 # Domain name server lookup utility
         
         # File and Disk Management
         ncdu                # Disk usage analyzer with an ncurses interface
+        duf                 # Disk Usage/Free Utility
         bat                 # Cat(1) clone with syntax highlighting and Git integration
         
         # Documentation and Help
         tlrc                # Official tldr client written in Rust
+        vhs                 #Tool for generating terminal GIFs with code
 
     ];
 }
