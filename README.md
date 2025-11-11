@@ -55,7 +55,7 @@ imports = [
     ./systemConfig/networking.nix     # ← Networking config loaded
     ./systemConfig/sysConfig.nix      # ← Basic system config loaded
     ./gaming/steam.nix                # ← Gaming config loaded
-    ./users/users.nix                 # ← User accounts loaded
+    ../users/users.nix                # ← User accounts loaded
 ];
 ```
 
@@ -118,14 +118,14 @@ config = lib.mkIf config.mySystem.gaming.steam {  # ← TRUE, so activates
 
 ### 5. Home Manager Integration
 ```
-home-manager.users.sithy = import ./modules/users/sithy/home.nix;
+home-manager.users.sithy = import ./users/sithy/home.nix;
 ```
 Home Manager Module Chain (home.nix)
 ```
 imports = [
-    ../../packages/sys-util-packages.nix  # ← User packages loaded
-    ../../packages/gui-packages.nix       # ← GUI packages loaded  
-    ../../packages/tui-packages.nix       # ← TUI packages loaded
+    ../modules/packages/sys-util-packages.nix  # ← User packages loaded
+    ../modules/packages/gui-packages.nix       # ← GUI packages loaded  
+    ../modules/packages/tui-packages.nix       # ← TUI packages loaded
 ];
 ```
 

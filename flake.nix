@@ -51,7 +51,7 @@
                     home-manager.useUserPackages = true;
 
                     # Import user's home.nix configuration.
-                    home-manager.users.${username} = import ./modules/users/${username}/home.nix;
+                    home-manager.users.${username} = import ./users/${username}/home.nix;
 
                     # Pass extra arguments to home-manager modules
                     home-manager.extraSpecialArgs = {

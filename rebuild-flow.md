@@ -30,13 +30,13 @@ flowchart TD
     E --> I["`**modules/gaming/steam.nix**
     Steam config (conditional)`"]
     
-    E --> J["`**modules/users/users.nix**
+    E --> J["`**users/users.nix**
     System user accounts`"]
     
     B --> K["`**Home Manager Integration**
     home-manager.nixosModules.home-manager`"]
     
-    K --> L["`**modules/users/sithy/home.nix**
+    K --> L["`**users/sithy/home.nix**
     User-specific configuration`"]
     
     L --> M["`**modules/packages/**

@@ -10,6 +10,6 @@
         ./systemConfig/networking.nix
         ./systemConfig/sysConfig.nix
         ./gaming/steam.nix
-        ./users/users.nix
+        ../users/users.nix
     ];
 }
