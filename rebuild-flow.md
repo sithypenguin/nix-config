@@ -1,76 +1,64 @@
 ```mermaid
 flowchart TD
     A["`**nixos-rebuild --flake .#sithy-one**`"] --> B["`**flake.nix**
-    Looks up nixosConfigurations.sithy-one`"]
+    Looks up nixosConfigurations.sithy-one
+    Calls mkHost function`"]
     
     B --> C["`**configuration.nix**
-    Main system config`"]
+    Imports ./modules`"]
     
     B --> D["`**hosts/sithy-one/default.nix**
-    Host-specific config`"]
+    Host-specific config + hardware`"]
     
-    C --> E["`**system/host-options.nix**
-    Defines mySystem options`"]
+    C --> E["`**modules/default.nix**
+    Central module aggregator`"]
     
-    D --> F["`**profiles/laptop.nix**
-    Sets configuration values`"]
+    D --> F["`**modules/profiles/laptop.nix**
+    Sets mySystem option values`"]
     
-    F --> G["`**mySystem Values Set:**
-    • laptop.enable = true
-    • laptop.environment = 'plasma6'
-    • gaming.steam = true
-    • hardware.bluetooth = true`"]
+    E --> G["`**modules/systemConfig/host-options.nix**
+    Defines all mySystem options`"]
     
-    G --> H{"`**Conditional Module Evaluation**`"}
+    E --> H["`**modules/systemConfig/**
+    - fonts.nix
+    - audio.nix (conditional)
+    - bluetooth.nix (conditional)
+    - display.nix (conditional)
+    - networking.nix (conditional)
+    - sysConfig.nix`"]
     
-    H --> I["`**system/display.nix**
-    IF laptop.enable || desktop.enable`"]
+    E --> I["`**modules/gaming/steam.nix**
+    Steam config (conditional)`"]
     
-    H --> J["`**system/audio.nix**
-    IF laptop.enable`"]
+    E --> J["`**modules/users/users.nix**
+    System user accounts`"]
     
-    H --> K["`**general/steam.nix**
-    IF gaming.steam`"]
+    B --> K["`**Home Manager Integration**
+    home-manager.nixosModules.home-manager`"]
     
-    H --> L["`**system/connectivity.nix**
-    IF hardware.bluetooth`"]
+    K --> L["`**modules/users/sithy/home.nix**
+    User-specific configuration`"]
     
-    I --> M["`**Display Module Activates:**
-    ✅ X11 server
-    ✅ SDDM display manager
-    ✅ Plasma6 desktop
-    ✅ Touchpad support`"]
+    L --> M["`**modules/packages/**
+    - sys-util-packages.nix
+    - gui-packages.nix
+    - tui-packages.nix`"]
     
-    J --> N["`**Audio Module Activates:**
-    ✅ PipeWire
-    ✅ ALSA support
-    ✅ PulseAudio compatibility`"]
+    F --> N["`**Conditional Evaluation**
+    laptop.enable = true triggers:
+    - Audio (pipewire)
+    - Display (plasma6/sddm)
+    - Bluetooth
+    - Steam (gaming.steam = true)
+    - Development tools`"]
     
-    K --> O["`**Gaming Module Activates:**
-    ✅ Steam platform`"]
+    G --> N
+    H --> N
+    I --> N
     
-    L --> P["`**Connectivity Activates:**
-    ✅ Bluetooth hardware
-    ✅ Auto power-on`"]
-    
-    C --> Q["`**Always Active:**
-    ✅ NetworkManager
-    ✅ Bootloader (sysConfig.nix)
-    ✅ Locale settings
-    ✅ User accounts`"]
-    
-    M --> R["`**Final System Generation**
-    All enabled modules combined`"]
-    N --> R
-    O --> R
-    P --> R
-    Q --> R
-    
-    R --> S["`**System Activation:**
-    • Download/build packages
-    • Update bootloader
-    • Start/restart services
-    • Apply configuration`"]
+    N --> O["`**Final System Generation**
+    All active modules combined
+    into bootable system`"]
     
     %% Color styling for better visibility
     style A fill:#e74c3c,stroke:#c0392b,stroke-width:3px,color:#fff
@@ -88,8 +76,5 @@ flowchart TD
     style M fill:#2ecc71,stroke:#27ae60,stroke-width:2px,color:#fff
     style N fill:#2ecc71,stroke:#27ae60,stroke-width:2px,color:#fff
     style O fill:#2ecc71,stroke:#27ae60,stroke-width:2px,color:#fff
-    style P fill:#2ecc71,stroke:#27ae60,stroke-width:2px,color:#fff
-    style Q fill:#34495e,stroke:#2c3e50,stroke-width:2px,color:#fff
-    style R fill:#27ae60,stroke:#229954,stroke-width:4px,color:#fff
-    style S fill:#8e44ad,stroke:#7d3c98,stroke-width:3px,color:#fff
+
 ```
