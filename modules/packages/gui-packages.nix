@@ -31,5 +31,7 @@
 
         # 3D Printing
         pkgs-unstable.prusa-slicer         # G-code generator for 3D printer
+
+        tuxtype             # Educational Typing Tutor Game Starring Tux, the Linux Penguin
     ];
 }
