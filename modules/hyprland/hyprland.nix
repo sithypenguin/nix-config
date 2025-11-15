@@ -14,8 +14,8 @@
                     natural_scroll = true;
                 };
                 sensitivity = 0;
-            }
-        }
+            };
+        };
     };
 
     home.packages = with pkgs; [
@@ -52,5 +52,5 @@
         nemo-with-extensions
         mc # Midnight Commander
         
-    ]
+    ];
 }
