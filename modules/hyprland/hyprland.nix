@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, pkgs, pkgs-unstable,... }:
 
 { 
     wayland.windowManager.hyprland = {
@@ -27,6 +27,7 @@
         ## Audio
         pipewire
         wireplumber
+        pavucontrol 
 
         ## Authentication
         hyprpolkitagent
@@ -41,7 +42,7 @@
         hyprpaper
 
         ## App Launcher
-        rofi
+        pkgs-unstable.rofi
 
         ## Clipboard manager
         wl-clipboard 
@@ -51,6 +52,14 @@
         xfce.thunar
         nemo-with-extensions
         mc # Midnight Commander
+
+        ## Screen capture/recording
+        grim
+        slurp
+        wf-recorder
+
+        ## Calculator
+        qalculate-gtk
         
     ];
 }
