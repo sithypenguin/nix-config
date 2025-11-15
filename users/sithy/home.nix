@@ -8,6 +8,7 @@
         ../../modules/packages/sys-util-packages.nix  # System utility packages
         ../../modules/packages/gui-packages.nix       # GUI packages
         ../../modules/packages/tui-packages.nix       # TUI packages
+        ../../modules/hyprland.nix
     ];
 
     # Allow unfree packages for Home Manager
