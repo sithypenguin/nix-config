@@ -1,23 +1,6 @@
 { config, pkgs, pkgs-unstable,... }:
 
 { 
-    wayland.windowManager.hyprland = {
-        enable = true;
-
-        settings = {
-            monitor = ",preferred,auto,1";
-
-            input = {
-                kb_layout = "us";
-                follow_mouse = "1";
-                touchpad = {
-                    natural_scroll = true;
-                };
-                sensitivity = 0;
-            };
-        };
-    };
-
     home.packages = with pkgs; [
         # Hyprland Doc Must-Haves
 
