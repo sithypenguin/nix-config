@@ -1,35 +1,38 @@
 { config, pkgs, pkgs-unstable,... }:
 
+let 
+    unstable = pkgs-unstable;
+in
 { 
     home.packages = with pkgs; [
         # Hyprland Doc Must-Haves
 
         ## Notifications
-        mako
+        unstable.mako
 
         ## Audio
-        pipewire
-        wireplumber
-        pavucontrol 
+        unstable.pipewire
+        unstable.wireplumber
+        unstable.pavucontrol 
 
         ## Authentication
-        hyprpolkitagent
+        unstable.hyprpolkitagent
 
         ## Desktop Portal
         xdg-desktop-portal-hyprland
 
         ## Status Bar
-        waybar
+        unstable.waybar
 
         ## Wallpaper
-        hyprpaper
+        unstable.hyprpaper
 
         ## App Launcher
-        pkgs-unstable.rofi
+        unstable.rofi
 
         ## Clipboard manager
-        wl-clipboard 
-        cliphist # Dependency on wl-clipboard
+        unstable.wl-clipboard 
+        unstable.cliphist # Dependency on wl-clipboard
 
         ## File manager
         xfce.thunar
@@ -37,9 +40,9 @@
         mc # Midnight Commander
 
         ## Screen capture/recording
-        grim
-        slurp
-        wf-recorder
+        unstable.grim
+        unstable.slurp
+        unstable.wf-recorder
 
         ## Calculator
         qalculate-gtk
