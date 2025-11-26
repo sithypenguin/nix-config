@@ -25,13 +25,17 @@ flowchart TD
     - bluetooth.nix (conditional)
     - display.nix (conditional)
     - networking.nix (conditional)
-    - sysConfig.nix`"]
+    - sysConfig.nix
+    - hyprland.nix`"]
     
     E --> I["`**modules/gaming/steam.nix**
     Steam config (conditional)`"]
     
     E --> J["`**users/users.nix**
     System user accounts`"]
+    
+    E --> K1["`**modules/hyprland/cachix.nix**
+    Hyprland binary cache`"]
     
     B --> K["`**Home Manager Integration**
     home-manager.nixosModules.home-manager`"]
@@ -44,13 +48,17 @@ flowchart TD
     - gui-packages.nix
     - tui-packages.nix`"]
     
+    L --> N1["`**modules/hyprland/hyprland.nix**
+    Hyprland user packages`"]
+    
     F --> N["`**Conditional Evaluation**
     laptop.enable = true triggers:
     - Audio (pipewire)
-    - Display (plasma6/sddm)
+    - Display (plasma6/sddm OR hyprland)
+    - Networking (NetworkManager)
     - Bluetooth
     - Steam (gaming.steam = true)
-    - Development tools`"]
+    - Touchpad support`"]
     
     G --> N
     H --> N
@@ -72,9 +80,11 @@ flowchart TD
     style I fill:#1abc9c,stroke:#16a085,stroke-width:2px,color:#fff
     style J fill:#1abc9c,stroke:#16a085,stroke-width:2px,color:#fff
     style K fill:#1abc9c,stroke:#16a085,stroke-width:2px,color:#fff
+    style K1 fill:#1abc9c,stroke:#16a085,stroke-width:2px,color:#fff
     style L fill:#1abc9c,stroke:#16a085,stroke-width:2px,color:#fff
     style M fill:#2ecc71,stroke:#27ae60,stroke-width:2px,color:#fff
     style N fill:#2ecc71,stroke:#27ae60,stroke-width:2px,color:#fff
+    style N1 fill:#2ecc71,stroke:#27ae60,stroke-width:2px,color:#fff
     style O fill:#2ecc71,stroke:#27ae60,stroke-width:2px,color:#fff
 
 ```
