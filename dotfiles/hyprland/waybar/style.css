@@ -1,0 +1,244 @@
+* {
+    font-family: "FiraCode Nerd Font Mono", monospace;
+    font-size: 15px;
+    border: none;
+    border-radius: 12px;
+}
+
+/* Gradient from warm sun (left) to cold outer space (right) */
+window#waybar {
+    background: linear-gradient(to right, 
+        rgba(198, 100, 44, 0.4) 0%,
+        rgba(122, 49, 74, 0.5) 25%,
+        rgba(59, 80, 120, 0.6) 50%,
+        rgba(30, 50, 90, 0.7) 75%,
+        rgba(11, 35, 53, 0.95) 100%
+    );
+    color: #FFA85C;
+    border-bottom: none;
+    border-radius: 0;
+    padding: 0;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+/* LEFT SIDE - Sun/Inner Planets - Brightest & Warmest */
+#workspaces {
+    background: transparent;
+    margin: 2px 5px;
+}
+
+#workspaces button {
+    padding: 0px 6px;
+    color: #FFB876;
+    background: rgba(198, 100, 44, 0.15);
+    border: 1px solid rgba(224, 122, 54, 0.3);
+    border-radius: 16px;
+    margin: 0 3px;
+    transition: all 0.3s ease;
+    min-width: 25px;
+    min-height: 20px;
+}
+
+#workspaces button label {
+    font-size: 20px;
+}
+
+#workspaces button.active {
+    background: linear-gradient(135deg, rgba(255, 159, 90, 0.6), rgba(224, 122, 54, 0.5));
+    color: #FFD699;
+    border: 1px solid rgba(255, 215, 153, 0.4);
+    font-weight: bold;
+    border-radius: 20px;
+    padding: 0px 8px;
+}
+
+#workspaces button.active label {
+    font-size: 24px;
+}
+
+/* Window title - matches sun/inner planet theme */
+#window {
+    padding: 2px 14px;
+    margin: 2px 5px;
+    background: rgba(224, 122, 54, 0.2);
+    border: 1px solid rgba(255, 184, 118, 0.3);
+    border-radius: 16px;
+    color: #FFD699;
+}
+
+/* CENTER - Mid Solar System - Warm to Cool Transition */
+#clock {
+    padding: 2px 16px;
+    margin: 2px 5px;
+    background: linear-gradient(135deg, rgba(224, 122, 54, 0.25), rgba(107, 91, 149, 0.2));
+    border: 1px solid rgba(200, 120, 58, 0.3);
+    border-radius: 20px;
+    color: #FFD699;
+    min-width: 120px;
+}
+
+#cpu, #memory {
+    padding: 2px 14px;
+    margin: 2px 5px;
+    background: rgba(107, 91, 149, 0.15);
+    border: 1px solid rgba(123, 104, 160, 0.25);
+    border-radius: 14px;
+    color: #B5A8CC;
+    min-width: 80px;
+}
+
+#disk, #temperature, #load {
+    padding: 2px 14px;
+    margin: 2px 5px;
+    background: rgba(79, 82, 141, 0.15);
+    border: 1px solid rgba(94, 97, 168, 0.25);
+    border-radius: 14px;
+    color: #A8AAD1;
+}
+
+/* RIGHT SIDE - Outer Planets - Coolest & Darkest */
+#backlight, #battery {
+    padding: 2px 14px;
+    margin: 2px 5px;
+    background: rgba(59, 130, 246, 0.15);
+    border: 1px solid rgba(96, 165, 250, 0.25);
+    border-radius: 14px;
+    color: #BFDBFE;
+}
+
+#bluetooth, #network {
+    padding: 2px 14px;
+    margin: 2px 5px;
+    background: rgba(30, 64, 175, 0.15);
+    border: 1px solid rgba(59, 130, 246, 0.25);
+    border-radius: 14px;
+    color: #93C5FD;
+}
+
+/* Pulseaudio module */
+#pulseaudio {
+    padding: 2px 14px;
+    margin: 2px 5px;
+    background: rgba(79, 82, 141, 0.15);
+    border: 1px solid rgba(94, 97, 168, 0.25);
+    border-radius: 14px;
+    color: #A8AAD1;
+}
+
+#pulseaudio.muted {
+    background: rgba(17, 24, 39, 0.3);
+    color: #6B7280;
+    border: 1px solid rgba(55, 65, 81, 0.3);
+}
+
+/* System tray */
+#tray {
+    background: rgba(11, 35, 53, 0.2);
+    border: 1px solid rgba(30, 50, 90, 0.3);
+    border-radius: 14px;
+    padding: 2px;
+    margin: 2px 5px;
+}
+
+#tray > .passive {
+    opacity: 0.7;
+}
+
+#tray > .active {
+    opacity: 1;
+}
+
+/* Idle inhibitor */
+#idle_inhibitor {
+    padding: 2px 14px;
+    margin: 2px 5px;
+    background: rgba(30, 64, 175, 0.15);
+    border: 1px solid rgba(59, 130, 246, 0.25);
+    border-radius: 14px;
+    color: #93C5FD;
+}
+
+#idle_inhibitor.activated {
+    background: rgba(255, 159, 90, 0.3);
+    color: #FFD699;
+    border: 1px solid rgba(255, 215, 153, 0.3);
+    box-shadow: 0 0 15px rgba(255, 159, 90, 0.4);
+}
+
+/* Tooltips */
+tooltip {
+    background: rgba(11, 35, 53, 0.95);
+    border: 1px solid rgba(59, 130, 246, 0.4);
+    border-radius: 12px;
+    padding: 8px 12px;
+    color: #BFDBFE;
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+}
+
+tooltip label {
+    color: #BFDBFE;
+}
+
+/* Battery states */
+#battery.warning {
+    background: rgba(251, 146, 60, 0.3);
+    color: #FED7AA;
+    border: 1px solid rgba(251, 146, 60, 0.4);
+}
+
+#battery.critical {
+    background: rgba(239, 68, 68, 0.35);
+    color: #FEE2E2;
+    border: 1px solid rgba(239, 68, 68, 0.5);
+}
+
+/* Temperature warning - gets warmer */
+#temperature.critical {
+    background: rgba(239, 68, 68, 0.35);
+    color: #FEE2E2;
+    border: 1px solid rgba(239, 68, 68, 0.5);
+}
+
+/* Network disconnected - goes dark */
+#network.disconnected {
+    background: rgba(17, 24, 39, 0.3);
+    color: #6B7280;
+    border: 1px solid rgba(55, 65, 81, 0.3);
+}
+
+/* Hover effects - warm glow on left, cool glow on right */
+#cpu:hover,
+#memory:hover {
+    background: rgba(107, 91, 149, 0.3);
+    box-shadow: 0 0 12px rgba(107, 91, 149, 0.4);
+    border: 1px solid rgba(123, 104, 160, 0.4);
+}
+
+#disk:hover,
+#temperature:hover,
+#load:hover {
+    background: rgba(79, 82, 141, 0.3);
+    box-shadow: 0 0 12px rgba(79, 82, 141, 0.4);
+    border: 1px solid rgba(94, 97, 168, 0.4);
+}
+
+#backlight:hover,
+#battery:hover {
+    background: rgba(59, 130, 246, 0.3);
+    box-shadow: 0 0 12px rgba(59, 130, 246, 0.4);
+    border: 1px solid rgba(96, 165, 250, 0.4);
+}
+
+#bluetooth:hover,
+#network:hover {
+    background: rgba(37, 99, 235, 0.3);
+    box-shadow: 0 0 12px rgba(37, 99, 235, 0.4);
+    border: 1px solid rgba(59, 130, 246, 0.4);
+}
+
+#pulseaudio:hover {
+    background: rgba(79, 82, 141, 0.3);
+    box-shadow: 0 0 12px rgba(79, 82, 141, 0.4);
+    border: 1px solid rgba(94, 97, 168, 0.4);
+}
+
