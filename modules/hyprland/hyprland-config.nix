@@ -6,8 +6,8 @@
   home.file.".config/hypr/hyprpaper.conf".source = ../../dotfiles/hyprland/hypr/hyprpaper.conf;
   
   # Scripts
-  home.file.".config/hypr/scripts/toggle-docked.sh" = {
-    source = ../../dotfiles/hyprland/scripts/toggle-docked.sh;
+  home.file.".config/hypr/scripts/dock_mode.sh" = {
+    source = ../../dotfiles/hyprland/scripts/dock_mode.sh;
     executable = true;
   };
   
