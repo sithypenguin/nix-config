@@ -1,4 +1,4 @@
-{ ... }:
+{ pkgs, ... }:
 
 {
     mySystem = {
@@ -10,4 +10,8 @@
         development.enable = true;
         hardware.bluetooth = true;
     };
+
+    environment.systemPackages = with pkgs; [
+        lm_sensors
+    ];
 }
