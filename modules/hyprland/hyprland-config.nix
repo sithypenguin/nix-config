@@ -5,6 +5,12 @@
   home.file.".config/hypr/hyprland.conf".source = ../../dotfiles/hyprland/hypr/hyprland.conf;
   home.file.".config/hypr/hyprpaper.conf".source = ../../dotfiles/hyprland/hypr/hyprpaper.conf;
   
+  # Scripts
+  home.file.".config/hypr/scripts/toggle-docked.sh" = {
+    source = ../../dotfiles/hyprland/scripts/toggle-docked.sh;
+    executable = true;
+  };
+  
   # Waybar configuration files
   home.file.".config/waybar/config.json".source = ../../dotfiles/hyprland/waybar/config.json;
   home.file.".config/waybar/style.css".source = ../../dotfiles/hyprland/waybar/style.css;
