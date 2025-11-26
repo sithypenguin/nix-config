@@ -9,7 +9,6 @@
         ../../modules/packages/gui-packages.nix       # GUI packages
         ../../modules/packages/tui-packages.nix       # TUI packages
         ../../modules/hyprland/hyprland.nix
-        ../../modules/hyprland/hyprland-theme.nix  # Add this
     ];
 
     # Allow unfree packages for Home Manager

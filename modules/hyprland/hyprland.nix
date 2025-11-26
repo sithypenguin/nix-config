@@ -46,21 +46,9 @@ in
 
         ## Calculator
         qalculate-gtk
-
-        kvantum
-        qt6.qtwayland
+        
     ];
-
-    qt = {
-        enable = true;
-        platformTheme.name = "kvantum";
-        style.name = "kvantum";
-    };
 
     # Simply enable the service that the package already provides
     services.hyprpolkitagent.enable = true;
-
-    home.sessionVariables = {
-        QT_QPA_PLATFORMTHEME = "kvantum";
-    };
 }
