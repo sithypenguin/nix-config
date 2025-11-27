@@ -92,7 +92,7 @@ flowchart TD
     Symlinks dotfiles to ~/.config`"]
     
     N2 --> N3["`**dotfiles/hyprland/**
-    - hypr/ (hyprland.conf, hyprpaper.conf)
+    - hypr/ (hyprland.conf, hyprpaper.conf, hyprlock.conf)
     - waybar/ (config.json, style.css)
     - mako/ (config)
     - rofi/ (config.rasi)`"]
@@ -221,7 +221,7 @@ config = lib.mkIf (config.mySystem.laptop.enable) {  # ← TRUE, so activates
 ```nix
 config = lib.mkIf (config.mySystem.laptop.enable || config.mySystem.desktop.enable) {  # ← TRUE
     services.xserver.enable = true;
-    services.displayManager.sddm.enable = true;      # ← Enabled for both
+    services.displayManager.sddm.enable = true;      # ← Enabled for both Plasma6 and Hyprland
     services.desktopManager.plasma6.enable = true;   # ← Plasma6 (when selected)
     services.libinput.enable = true;                 # ← Touchpad for laptop
 };
@@ -273,7 +273,10 @@ Installs Hyprland-specific applications:
 - mako (notifications)
 - waybar (status bar)
 - hyprpaper (wallpaper)
+- hyprlock (lock screen)
 - rofi (app launcher)
+- grim, slurp, wf-recorder (screen capture)
+- wl-clipboard, cliphist (clipboard management)
 - And more...
 
 Also enables `services.hyprpolkitagent.enable = true` for authentication dialogs.
@@ -284,6 +287,7 @@ Creates symlinks from `dotfiles/` to `~/.config/`:
 
 ```nix
 home.file.".config/hypr/hyprland.conf".source = ../../dotfiles/hyprland/hypr/hyprland.conf;
+home.file.".config/hypr/hyprlock.conf".source = ../../dotfiles/hyprland/hypr/hyprlock.conf;
 home.file.".config/waybar/config.json".source = ../../dotfiles/hyprland/waybar/config.json;
 # ... and more
 ```
@@ -299,6 +303,7 @@ NixOS combines all active configurations:
 - Basic system config (bootloader, timezone, locale)
 - User accounts
 - Hyprland binary cache
+- Hyprland system-level config
 
 **Conditionally Active:**
 - Audio (pipewire) - triggered by `laptop.enable`
@@ -309,13 +314,14 @@ NixOS combines all active configurations:
 - Touchpad support - triggered by `laptop.enable`
 
 **User Packages:**
-- System utilities (git, btop, fastfetch, etc.)
-- GUI applications (Firefox, VSCode, Bitwarden, etc.)
+- System utilities (git, btop, fastfetch, zellij, etc.)
+- GUI applications (Firefox, VSCode, Bitwarden, Ghostty, etc.)
 - TUI tools (ncspot)
-- Hyprland ecosystem (waybar, rofi, mako, etc.)
+- Hyprland ecosystem (waybar, rofi, mako, hyprlock, etc.)
 
 **Dotfiles (Nix-managed):**
 - Hyprland config with Solar System theme
+- Hyprlock config with Solar System lock screen
 - Waybar with gradient from warm (sun) to cool (space)
 - Mako notifications
 - Rofi app launcher
@@ -396,7 +402,8 @@ nix-config/
 │   └── hyprland/
 │       ├── hypr/
 │       │   ├── hyprland.conf
-│       │   └── hyprpaper.conf
+│       │   ├── hyprpaper.conf
+│       │   └── hyprlock.conf
 │       ├── waybar/
 │       │   ├── config.json
 │       │   └── style.css
