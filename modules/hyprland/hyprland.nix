@@ -24,6 +24,9 @@ in
         ## Status Bar
         unstable.waybar
 
+        ## Lock Screen
+        unstable.hyprlock
+
         ## Wallpaper
         unstable.hyprpaper
 
