@@ -9,6 +9,8 @@
         ./systemConfig/host-options.nix
         ./systemConfig/networking.nix
         ./systemConfig/sysConfig.nix
+        ./hyprland/cachix.nix
+        ./systemConfig/hyprland.nix
         ./gaming/steam.nix
         ../users/users.nix
     ];

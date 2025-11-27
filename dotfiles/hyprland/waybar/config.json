@@ -1,0 +1,106 @@
+{
+    "layer": "bottom",
+    "position": "top",
+    "mode": "dock",
+    "exclusive": "false",
+    "modules-left": ["hyprland/workspaces", "hyprland/window"],
+    "modules-center": [
+        "clock",
+        "cpu",
+        "load",
+        "memory",
+        "disk",
+        "temperature"
+    ],
+    "modules-right": [
+        "backlight",
+        "battery",
+        "bluetooth",
+        "network"
+    ],
+    "hyprland/workspaces": {
+        "format": "{icon}",
+        "format-icons": {
+            "1": "󰖟",  
+            "2": "󰨞",  
+            "3": "",  
+            "4": "󰭹"
+        },
+        "persistent-workspaces": {
+            "*": 4
+        }
+    },
+    "hyprland/window": {
+        "format": "{}",
+        "max-length": 50,
+        "separate-outputs": true
+    },
+    "clock": {
+        "format": "{:%H:%M:%S}",
+        "format-alt": "{:%A, %B %d, %Y}",
+        "interval": 1,
+        "timezone": "America/New_York",
+        "tooltip-format": "<tt><small>{calendar}</small></tt>",
+        "calendar": {
+            "mode": "month",
+            "weeks-pos": "left",
+            "format": {
+            "months": "<span color='#ffead3'><b>{}</b></span>",
+            "weekdays": "<span color='#ffcc66'><b>{}</b></span>",
+            "today": "<span color='#ff6699'><b>{}</b></span>"    
+            }
+        }
+    },
+    "cpu": {
+        "format": "<span size='x-large'>󰘚</span> {usage}%",
+        "interval": 1,
+        "on-click": "ghostty -e btop"
+    },
+    "load": {
+        "format": "Load:{load1}, {load5}, {load15} ",
+        "interval": 5,
+        "on-click": "ghostty -e btop"
+    },
+    "memory": {
+        "format": "<span size='x-large'>󰍛</span> {percentage}%",
+        "tooltip-format": "{used:0.1f}GB / {total:0.1f}GB",
+        "on-click": "ghostty -e btop"
+    },
+    "disk": {
+        "format": "<span size='x-large'>󰋊</span> {percentage_used}%",
+        "tooltip-format": "{used} / {total} used",
+        "on-click": "dolphin ~",
+        "on-click-right": "ghostty -e ncdu ~"
+    },
+    "temperature": {
+        "thermal-zone": 0,
+        "format": "<span size='x-large'>󰔐</span> {temperatureC}°C",
+        "interval": 1,
+        "on-click": "ghostty -e watch -n 1 sensors"
+    },
+    "backlight": {
+        "format": "<span size='x-large'>󰃞</span> {percent}%"
+    },
+    "battery": {
+        "format": "<span size='x-large'>{icon}</span> {capacity}%",
+        "format-icons": ["󰂎", "󰁺", "󰁼", "󰁾", "󰂀"],
+        "states": {
+            "warning": 30,
+            "critical": 15
+        }
+    },
+    "network": {
+        "format-wifi": "<span size='x-large'></span> {signalStrength}%",
+        "format-ethernet": "<span size='x-large'>󰈀</span> {ipaddr}",
+        "format-disconnected": "<span size='x-large'>󰖪</span> Disconnected",
+        "tooltip-format": "{ifname}: {ipaddr}/{cidr}"
+    },
+    "bluetooth": {
+        "format": "<span size='x-large'>󰂯</span> {status}",
+        "format-connected": "<span size='x-large'>󰂱</span> {device_alias}",
+        "format-disabled": "<span size='x-large'>󰂲</span>",
+        "tooltip-format": "{controller_alias}\t{controller_address}",
+        "tooltip-format-connected": "{controller_alias}\t{controller_address}\n\n{device_enumerate}",
+        "tooltip-format-enumerate-connected": "{device_alias}\t{device_address}"
+    }
+}

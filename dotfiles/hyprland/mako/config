@@ -1,0 +1,61 @@
+# Mako Notification Daemon Configuration
+# Solar System Theme
+
+# Position and anchoring
+anchor=bottom-right
+layer=overlay
+
+# Dimensions
+width=400
+height=150
+margin=20
+padding=15
+
+# Border
+border-size=2
+border-radius=12
+border-color=#3B82F6AA
+
+# Colors - Dark space background with warm text
+background-color=#0B2335F2
+text-color=#BFDBFE
+
+# Progress bar (for things like volume notifications)
+progress-color=over #E07A36
+
+# Default timeout
+default-timeout=5000
+ignore-timeout=0
+
+# Grouping
+group-by=app-name
+max-visible=3
+
+# Icons
+icons=1
+max-icon-size=48
+icon-path=/usr/share/icons/Papirus-Dark
+
+# Font
+font=FiraCode Nerd Font Mono 11
+
+# Format
+format=<b>%s</b>\n%b
+markup=1
+
+# Urgency levels
+[urgency=low]
+border-color=#60A5FA80
+background-color=#1E325AF0
+default-timeout=3000
+
+[urgency=normal]
+border-color=#3B82F6AA
+background-color=#0B2335F2
+default-timeout=5000
+
+[urgency=critical]
+border-color=#FF9F5AFF
+background-color=#E07A36E6
+text-color=#FFD699
+default-timeout=0

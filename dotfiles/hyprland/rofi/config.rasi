@@ -1,0 +1,146 @@
+configuration {
+    modi: "drun,run,window";
+    show-icons: true;
+    terminal: "ghostty";
+    drun-display-format: "{icon} {name}";
+    location: 0;
+    disable-history: false;
+    hide-scrollbar: true;
+    display-drun: "󰀻 Apps";
+    display-run: " Run";
+    display-window: "󰖯 Windows";
+    sidebar-mode: true;
+}
+
+@theme "/dev/null"
+
+* {
+    bg-col: rgba(11, 35, 53, 0.95);
+    bg-col-light: rgba(30, 50, 90, 0.7);
+    border-col: rgba(59, 130, 246, 0.4);
+    selected-col: rgba(224, 122, 54, 0.5);
+    sun-glow: rgba(255, 159, 90, 0.6);
+    fg-col: #BFDBFE;
+    fg-col2: #FFD699;
+    grey: #6B7280;
+    
+    width: 600;
+    font: "FiraCode Nerd Font Mono 12";
+}
+
+element-text, element-icon, mode-switcher {
+    background-color: inherit;
+    text-color: inherit;
+}
+
+window {
+    height: 450px;
+    border: 2px;
+    border-color: @border-col;
+    border-radius: 16px;
+    background-color: @bg-col;
+}
+
+mainbox {
+    background-color: @bg-col;
+    border-radius: 16px;
+    padding: 15px;
+}
+
+inputbar {
+    background-color: @bg-col-light;
+    border-radius: 12px;
+    padding: 8px;
+    margin: 0 0 10px 0;
+    border: 1px;
+    border-color: @border-col;
+}
+
+prompt {
+    background-color: transparent;
+    padding: 6px;
+    text-color: @fg-col2;
+    border-radius: 8px;
+    margin: 0 10px 0 0;
+}
+
+textbox-prompt-colon {
+    expand: false;
+    str: ":";
+}
+
+entry {
+    padding: 6px;
+    text-color: @fg-col;
+    background-color: transparent;
+}
+
+listview {
+    border: 0;
+    padding: 8px 0;
+    columns: 1;
+    lines: 8;
+    background-color: transparent;
+}
+
+element {
+    padding: 8px;
+    background-color: transparent;
+    text-color: @fg-col;
+    border-radius: 10px;
+    margin: 2px 0;
+}
+
+element-icon {
+    size: 28px;
+    margin: 0 10px 0 0;
+}
+
+element selected {
+    background-color: @selected-col;
+    text-color: @fg-col2;
+    border: 1px;
+    border-color: rgba(255, 215, 153, 0.4);
+}
+
+element-text {
+    text-color: inherit;
+}
+
+mode-switcher {
+    spacing: 0;
+    background-color: @bg-col-light;
+    border-radius: 10px;
+    border: 1px;
+    border-color: @border-col;
+    margin: 10px 0 0 0;
+}
+
+button {
+    padding: 10px;
+    background-color: transparent;
+    text-color: @grey;
+    vertical-align: 0.5;
+    horizontal-align: 0.5;
+    border-radius: 10px;
+}
+
+button selected {
+    background-color: @selected-col;
+    text-color: @fg-col2;
+}
+
+message {
+    background-color: @bg-col-light;
+    margin: 0 0 10px 0;
+    border-radius: 10px;
+    border: 1px;
+    border-color: @border-col;
+    padding: 8px;
+}
+
+textbox {
+    padding: 6px;
+    background-color: transparent;
+    text-color: @fg-col;
+}

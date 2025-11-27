@@ -5,6 +5,9 @@
 {
     # User GUI applications installed via Home Manager
     home.packages = with pkgs; [
+        # Terminal
+        ghostty
+
         # Development and Text Editing
         vscode                # Open source source code editor developed by Microsoft for Windows, Linux and macOS
         
