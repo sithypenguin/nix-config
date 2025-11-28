@@ -79,7 +79,8 @@
         "on-click": "ghostty -e watch -n 1 sensors"
     },
     "backlight": {
-        "format": "<span size='x-large'>󰃞</span> {percent}%"
+        "format": "<span size='x-large'>󰃞</span> {percent}%",
+        "tooltip-format": "Brightness: {percent}%"
     },
     "battery": {
         "format": "<span size='x-large'>{icon}</span> {capacity}%",
