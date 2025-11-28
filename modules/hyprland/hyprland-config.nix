@@ -5,6 +5,7 @@
   home.file.".config/hypr/hyprland.conf".source = ../../dotfiles/hyprland/hypr/hyprland.conf;
   home.file.".config/hypr/hyprpaper.conf".source = ../../dotfiles/hyprland/hypr/hyprpaper.conf;
   home.file.".config/hypr/hyprlock.conf".source = ../../dotfiles/hyprland/hypr/hyprlock.conf;
+  home.file.".config/hypr/hypridle.conf".source = ../../dotfiles/hyprland/hypr/hypridle.conf;
   
   # Waybar configuration files
   home.file.".config/waybar/config.json".source = ../../dotfiles/hyprland/waybar/config.json;
