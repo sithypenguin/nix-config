@@ -30,6 +30,9 @@ in
         ## Wallpaper
         unstable.hyprpaper
 
+        ## Idle Management
+        unstable.hypridle
+
         ## App Launcher
         unstable.rofi
 
