@@ -23,6 +23,9 @@ in
 
         ## Status Bar
         unstable.waybar
+        
+        ## Screen Lock
+        unstable.wlogout
 
         ## Lock Screen
         unstable.hyprlock
