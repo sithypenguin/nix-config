@@ -16,7 +16,8 @@
         "backlight",
         "battery",
         "bluetooth",
-        "network"
+        "network",
+        "custom/wlogout"
     ],
     "hyprland/workspaces": {
         "format": "{icon}",
@@ -80,7 +81,10 @@
     },
     "backlight": {
         "format": "<span size='x-large'>󰃞</span> {percent}%",
-        "tooltip-format": "Brightness: {percent}%"
+        "tooltip-format": "Brightness: {percent}%",
+        "on-click": "brightnessctl set 50%",
+        "on-scroll-up": "brightnessctl set +5%",
+        "on-scroll-down": "brightnessctl set 5%-"
     },
     "battery": {
         "format": "<span size='x-large'>{icon}</span> {capacity}%",
@@ -88,13 +92,17 @@
         "states": {
             "warning": 30,
             "critical": 15
-        }
+        },
+        "on-click": "ghostty -e s-tui",
+        "tooltip-format": "{timeTo}\n{capacity}% - {power}W"
     },
     "network": {
         "format-wifi": "<span size='x-large'></span> {signalStrength}%",
         "format-ethernet": "<span size='x-large'>󰈀</span> {ipaddr}",
         "format-disconnected": "<span size='x-large'>󰖪</span> Disconnected",
-        "tooltip-format": "{ifname}: {ipaddr}/{cidr}"
+        "tooltip-format": "{ifname}: {ipaddr}/{cidr}",
+        "on-click": "nm-connection-editor",
+        "on-click-right": "ghostty -e nmtui"
     },
     "bluetooth": {
         "format": "<span size='x-large'>󰂯</span> {status}",
@@ -102,6 +110,13 @@
         "format-disabled": "<span size='x-large'>󰂲</span>",
         "tooltip-format": "{controller_alias}\t{controller_address}",
         "tooltip-format-connected": "{controller_alias}\t{controller_address}\n\n{device_enumerate}",
-        "tooltip-format-enumerate-connected": "{device_alias}\t{device_address}"
+        "tooltip-format-enumerate-connected": "{device_alias}\t{device_address}",
+        "on-click": "bluetui",
+        "on-click-right": "rfkill toggle bluetooth"
+    },
+    "custom/wlogout": {
+        "format": "<span size='x-large'>⏻</span>",
+        "tooltip": false,
+        "on-click": "wlogout -b 6"
     }
 }

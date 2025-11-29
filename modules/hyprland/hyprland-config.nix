@@ -11,6 +11,10 @@
   home.file.".config/waybar/config.json".source = ../../dotfiles/hyprland/waybar/config.json;
   home.file.".config/waybar/style.css".source = ../../dotfiles/hyprland/waybar/style.css;
   
+  # Wlogout configuration files
+  home.file.".config/wlogout/layout".source = ../../dotfiles/hyprland/wlogout/layout;
+  home.file.".config/wlogout/style.css".source = ../../dotfiles/hyprland/wlogout/style.css;
+  
   # Mako configuration
   home.file.".config/mako/config".source = ../../dotfiles/hyprland/mako/config;
   

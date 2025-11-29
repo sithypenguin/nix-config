@@ -1,0 +1,113 @@
+* {
+    font-family: "FiraCode Nerd Font Mono", monospace;
+    font-size: 16px;
+}
+
+window {
+    background: linear-gradient(135deg, 
+        rgba(11, 35, 53, 0.98) 0%,
+        rgba(30, 50, 90, 0.95) 50%,
+        rgba(11, 35, 53, 0.98) 100%
+    );
+}
+
+button {
+    background: rgba(30, 50, 90, 0.6);
+    border: 2px solid rgba(59, 130, 246, 0.3);
+    border-radius: 16px;
+    margin: 15px;
+    padding: 25px;
+    color: #BFDBFE;
+    transition: all 0.3s ease;
+    min-width: 180px;
+    min-height: 180px;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 20%;
+}
+
+button:focus,
+button:active {
+    background: rgba(59, 130, 246, 0.4);
+    border: 2px solid rgba(96, 165, 250, 0.7);
+    box-shadow: 0 0 25px rgba(59, 130, 246, 0.6);
+    outline-style: none;
+}
+
+/* Lock - Warmest (Sun/Inner Planets) */
+#lock {
+    background-image: image(url('/home/sithy/Development/nixos/nix-config/assets/wlogout/wlock.svg'));
+    background-color: rgba(224, 122, 54, 0.15);
+    border: 2px solid rgba(255, 184, 118, 0.3);
+}
+
+#lock:hover {
+    background-color: rgba(224, 122, 54, 0.3);
+    border: 2px solid rgba(255, 184, 118, 0.5);
+    box-shadow: 0 0 20px rgba(255, 159, 90, 0.6);
+}
+
+/* Logout - Warm Inner Planet */
+#logout {
+    background-image: image(url('/home/sithy/Development/nixos/nix-config/assets/wlogout/wlogout.svg'));
+    background-color: rgba(198, 100, 44, 0.15);
+    border: 2px solid rgba(224, 122, 54, 0.3);
+}
+
+#logout:hover {
+    background-color: rgba(198, 100, 44, 0.3);
+    border: 2px solid rgba(224, 122, 54, 0.5);
+    box-shadow: 0 0 20px rgba(224, 122, 54, 0.6);
+}
+
+/* Suspend - Mid System Purple */
+#suspend {
+    background-image: image(url('/home/sithy/Development/nixos/nix-config/assets/wlogout/wsuspend.svg'));
+    background-color: rgba(107, 91, 149, 0.15);
+    border: 2px solid rgba(123, 104, 160, 0.25);
+}
+
+#suspend:hover {
+    background-color: rgba(107, 91, 149, 0.3);
+    border: 2px solid rgba(123, 104, 160, 0.5);
+    box-shadow: 0 0 20px rgba(107, 91, 149, 0.5);
+}
+
+/* Hibernate - Cool Mid System */
+#hibernate {
+    background-image: image(url('/home/sithy/Development/nixos/nix-config/assets/wlogout/whibernate.svg'));
+    background-color: rgba(79, 82, 141, 0.15);
+    border: 2px solid rgba(94, 97, 168, 0.25);
+}
+
+#hibernate:hover {
+    background-color: rgba(79, 82, 141, 0.3);
+    border: 2px solid rgba(94, 97, 168, 0.5);
+    box-shadow: 0 0 20px rgba(79, 82, 141, 0.5);
+}
+
+/* Reboot - Outer Planet Blue */
+#reboot {
+    background-image: image(url('/home/sithy/Development/nixos/nix-config/assets/wlogout/wreboot.svg'));
+    background-color: rgba(59, 130, 246, 0.15);
+    border: 2px solid rgba(96, 165, 250, 0.25);
+}
+
+#reboot:hover {
+    background-color: rgba(59, 130, 246, 0.3);
+    border: 2px solid rgba(96, 165, 250, 0.5);
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.6);
+}
+
+/* Shutdown - Deep Space (Coldest/Darkest) */
+#shutdown {
+    background-image: image(url('/home/sithy/Development/nixos/nix-config/assets/wlogout/wshutdown.svg'));
+    background-color: rgba(30, 64, 175, 0.15);
+    border: 2px solid rgba(59, 130, 246, 0.25);
+}
+
+#shutdown:hover {
+    background-color: rgba(30, 64, 175, 0.3);
+    border: 2px solid rgba(59, 130, 246, 0.5);
+    box-shadow: 0 0 20px rgba(37, 99, 235, 0.6);
+}
