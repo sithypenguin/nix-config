@@ -108,6 +108,6 @@
     "custom/wlogout": {
         "format": "<span size='x-large'>⏻</span>",
         "tooltip": false,
-        "on-click": "wlogout"
+        "on-click": "wlogout -b 6"
     }
 }
