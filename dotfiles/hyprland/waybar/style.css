@@ -242,3 +242,19 @@ tooltip label {
     border: 1px solid rgba(94, 97, 168, 0.4);
 }
 
+/* Wlogout button - Deep outer space style */
+#custom-wlogout {
+    padding: 2px 14px;
+    margin: 2px 5px;
+    background: rgba(30, 64, 175, 0.15);
+    border: 1px solid rgba(59, 130, 246, 0.25);
+    border-radius: 14px;
+    color: #93C5FD;
+}
+
+#custom-wlogout:hover {
+    background: rgba(37, 99, 235, 0.3);
+    box-shadow: 0 0 12px rgba(37, 99, 235, 0.4);
+    border: 1px solid rgba(59, 130, 246, 0.4);
+}
+

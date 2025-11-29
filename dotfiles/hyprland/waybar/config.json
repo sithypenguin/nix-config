@@ -16,7 +16,8 @@
         "backlight",
         "battery",
         "bluetooth",
-        "network"
+        "network",
+        "custom/wlogout"
     ],
     "hyprland/workspaces": {
         "format": "{icon}",
@@ -103,5 +104,10 @@
         "tooltip-format": "{controller_alias}\t{controller_address}",
         "tooltip-format-connected": "{controller_alias}\t{controller_address}\n\n{device_enumerate}",
         "tooltip-format-enumerate-connected": "{device_alias}\t{device_address}"
+    },
+    "custom/wlogout": {
+        "format": "<span size='x-large'>⏻</span>",
+        "tooltip": false,
+        "on-click": "wlogout"
     }
 }
