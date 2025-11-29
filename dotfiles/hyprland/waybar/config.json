@@ -117,6 +117,6 @@
     "custom/wlogout": {
         "format": "<span size='x-large'>⏻</span>",
         "tooltip": false,
-        "on-click": "wlogout -b 6"
+        "on-click": "wlogout -style ~/.config/hyprland/wlogout/style.css -layout ~/.config/hyprland/wlogout/layout"
     }
 }

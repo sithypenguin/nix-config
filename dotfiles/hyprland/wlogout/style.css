@@ -15,15 +15,15 @@ button {
     background: rgba(30, 50, 90, 0.6);
     border: 2px solid rgba(59, 130, 246, 0.3);
     border-radius: 16px;
-    margin: 15px;
-    padding: 25px;
+    margin: 10px;      
+    padding: 10px;     
     color: #BFDBFE;
     transition: all 0.3s ease;
-    min-width: 180px;
-    min-height: 180px;
     background-repeat: no-repeat;
     background-position: center;
-    background-size: 20%;
+    background-size: 50%;  
+    min-width: 100px;  
+    min-height: 100px;
 }
 
 button:focus,
@@ -32,6 +32,9 @@ button:active {
     border: 2px solid rgba(96, 165, 250, 0.7);
     box-shadow: 0 0 25px rgba(59, 130, 246, 0.6);
     outline-style: none;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 50%;
 }
 
 /* Lock - Warmest (Sun/Inner Planets) */
@@ -39,6 +42,9 @@ button:active {
     background-image: image(url('/home/sithy/Development/nixos/nix-config/assets/wlogout/wlock.svg'));
     background-color: rgba(224, 122, 54, 0.15);
     border: 2px solid rgba(255, 184, 118, 0.3);
+    background-size: 50% ;
+    background-repeat: no-repeat;
+    background-position: center;
 }
 
 #lock:hover {
