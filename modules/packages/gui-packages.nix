@@ -5,9 +5,6 @@
 {
     # User GUI applications installed via Home Manager
     home.packages = with pkgs; [
-        # Terminal
-        ghostty
-
         # Development and Text Editing
         vscode                # Open source source code editor developed by Microsoft for Windows, Linux and macOS
         
@@ -17,7 +14,6 @@
         # Media and Entertainment
         vlc                   # Cross-platform media player and streaming server
         spotify               # Play music from the Spotify music service
-
 
         # Communication
         discord               # All-in-one cross-platform voice and text chat for gamers

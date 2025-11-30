@@ -46,7 +46,6 @@ in
         ## File manager
         xfce.thunar
         nemo-with-extensions
-        mc # Midnight Commander
 
         ## Screen capture/recording
         unstable.grim
