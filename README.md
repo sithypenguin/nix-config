@@ -92,8 +92,9 @@ flowchart TD
     Symlinks dotfiles to ~/.config`"]
     
     N2 --> N3["`**dotfiles/hyprland/**
-    - hypr/ (hyprland.conf, hyprpaper.conf, hyprlock.conf)
+    - hypr/ (hyprland.conf, hyprpaper.conf, hyprlock.conf, hypridle.conf)
     - waybar/ (config.json, style.css)
+    - wlogout/ (layout, style.css)
     - mako/ (config)
     - rofi/ (config.rasi)`"]
     
@@ -227,6 +228,15 @@ config = lib.mkIf (config.mySystem.laptop.enable || config.mySystem.desktop.enab
 };
 ```
 
+**Networking Module (networking.nix)**
+```nix
+config = lib.mkIf (config.mySystem.laptop.enable || config.mySystem.desktop.enable) {
+    networking.networkmanager.enable = true;
+    networking.networkmanager.wifi.powersave = false;
+    services.gnome.gnome-keyring.enable = true;
+};
+```
+
 **Bluetooth Module (bluetooth.nix)**
 ```nix
 config = lib.mkIf config.mySystem.hardware.bluetooth {  # ← TRUE, so activates
@@ -274,9 +284,12 @@ Installs Hyprland-specific applications:
 - waybar (status bar)
 - hyprpaper (wallpaper)
 - hyprlock (lock screen)
+- hypridle (idle management)
+- wlogout (logout menu)
 - rofi (app launcher)
 - grim, slurp, wf-recorder (screen capture)
 - wl-clipboard, cliphist (clipboard management)
+- pavucontrol (audio control)
 - And more...
 
 Also enables `services.hyprpolkitagent.enable = true` for authentication dialogs.
@@ -287,9 +300,15 @@ Creates symlinks from `dotfiles/` to `~/.config/`:
 
 ```nix
 home.file.".config/hypr/hyprland.conf".source = ../../dotfiles/hyprland/hypr/hyprland.conf;
+home.file.".config/hypr/hyprpaper.conf".source = ../../dotfiles/hyprland/hypr/hyprpaper.conf;
 home.file.".config/hypr/hyprlock.conf".source = ../../dotfiles/hyprland/hypr/hyprlock.conf;
+home.file.".config/hypr/hypridle.conf".source = ../../dotfiles/hyprland/hypr/hypridle.conf;
 home.file.".config/waybar/config.json".source = ../../dotfiles/hyprland/waybar/config.json;
-# ... and more
+home.file.".config/waybar/style.css".source = ../../dotfiles/hyprland/waybar/style.css;
+home.file.".config/wlogout/layout".source = ../../dotfiles/hyprland/wlogout/layout;
+home.file.".config/wlogout/style.css".source = ../../dotfiles/hyprland/wlogout/style.css;
+home.file.".config/mako/config".source = ../../dotfiles/hyprland/mako/config;
+home.file.".config/rofi/config.rasi".source = ../../dotfiles/hyprland/rofi/config.rasi;
 ```
 
 **Result:** Your config files in `~/.config/` become read-only symlinks to the Nix store, which are copies of files from `dotfiles/hyprland/`.
@@ -299,7 +318,7 @@ home.file.".config/waybar/config.json".source = ../../dotfiles/hyprland/waybar/c
 NixOS combines all active configurations:
 
 **Always Active:**
-- Fonts (FiraCode Nerd Font, etc.)
+- Fonts (FiraCode Nerd Font, JetBrains Mono, Font Awesome)
 - Basic system config (bootloader, timezone, locale)
 - User accounts
 - Hyprland binary cache
@@ -314,15 +333,17 @@ NixOS combines all active configurations:
 - Touchpad support - triggered by `laptop.enable`
 
 **User Packages:**
-- System utilities (git, btop, fastfetch, zellij, etc.)
-- GUI applications (Firefox, VSCode, Bitwarden, Ghostty, etc.)
+- System utilities (git, btop, fastfetch, zellij, ghostty, etc.)
+- GUI applications (Firefox, VSCode, Bitwarden, VLC, Spotify, Discord, etc.)
 - TUI tools (ncspot)
-- Hyprland ecosystem (waybar, rofi, mako, hyprlock, etc.)
+- Hyprland ecosystem (waybar, rofi, mako, hyprlock, hypridle, wlogout, etc.)
 
 **Dotfiles (Nix-managed):**
 - Hyprland config with Solar System theme
 - Hyprlock config with Solar System lock screen
+- Hypridle config for power management
 - Waybar with gradient from warm (sun) to cool (space)
+- Wlogout with Solar System themed buttons
 - Mako notifications
 - Rofi app launcher
 
@@ -403,9 +424,13 @@ nix-config/
 │       ├── hypr/
 │       │   ├── hyprland.conf
 │       │   ├── hyprpaper.conf
-│       │   └── hyprlock.conf
+│       │   ├── hyprlock.conf
+│       │   └── hypridle.conf
 │       ├── waybar/
 │       │   ├── config.json
+│       │   └── style.css
+│       ├── wlogout/
+│       │   ├── layout
 │       │   └── style.css
 │       ├── mako/
 │       │   └── config
