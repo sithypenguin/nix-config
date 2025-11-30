@@ -70,7 +70,7 @@
     "disk": {
         "format": "<span size='x-large'>󰋊</span> {percentage_used}%",
         "tooltip-format": "{used} / {total} used",
-        "on-click": "dolphin ~",
+        "on-click": "ghostty -e superfile",
         "on-click-right": "ghostty -e ncdu ~"
     },
     "temperature": {
@@ -111,12 +111,12 @@
         "tooltip-format": "{controller_alias}\t{controller_address}",
         "tooltip-format-connected": "{controller_alias}\t{controller_address}\n\n{device_enumerate}",
         "tooltip-format-enumerate-connected": "{device_alias}\t{device_address}",
-        "on-click": "bluetui",
+        "on-click": "ghostty -e bluetui",
         "on-click-right": "rfkill toggle bluetooth"
     },
     "custom/wlogout": {
         "format": "<span size='x-large'>⏻</span>",
         "tooltip": false,
-        "on-click": "wlogout -style ~/.config/hyprland/wlogout/style.css -layout ~/.config/hyprland/wlogout/layout"
+        "on-click": "wlogout -l /home/sithy/Development/nixos/nix-config/dotfiles/hyprland/wlogout/layout -C/home/sithy/Development/nixos/nix-config/dotfiles/hyprland/wlogout/style.css -b 6"
     }
 }

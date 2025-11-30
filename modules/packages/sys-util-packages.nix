@@ -12,6 +12,7 @@
         # Terminal and Session Management
         zellij              # A terminal workspace with batteries included
         ghostty             # Fast, native, feature-rich terminal emulator pushing modern features
+        kitty               # Fast, feature-rich, GPU based terminal emulator
         
         # System Information and Monitoring
         fastfetch           # Like neofetch but faster because written in C
