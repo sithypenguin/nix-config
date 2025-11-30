@@ -31,10 +31,14 @@
         ncdu                # Disk usage analyzer with an ncurses interface
         duf                 # Disk Usage/Free Utility
         bat                 # Cat(1) clone with syntax highlighting and Git integration
+        superfile           # Blazing fast terminal file manager written in Rust, based on async I/O
         
         # Documentation and Help
         tlrc                # Official tldr client written in Rust
         vhs                 #Tool for generating terminal GIFs with code
+
+        gnome-keyring        # GNOME application for managing passwords and encryption keys
+        seahorse             # GNOME application for managing encryption keys and passwords
 
     ];
 }
