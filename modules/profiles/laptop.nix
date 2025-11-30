@@ -9,6 +9,7 @@
         gaming.steam = true;
         development.enable = true;
         hardware.bluetooth = true;
+        shell.zsh = true;
     };
 
     environment.systemPackages = with pkgs; [

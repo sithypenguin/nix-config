@@ -24,5 +24,9 @@
             bluetooth = mkEnableOption "Bluetooth support";
         };
 
+        shell = {
+            zsh = mkEnableOption "Zsh shell";
+        };
+
     };
 }
