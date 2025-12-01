@@ -2,7 +2,7 @@
 
 {
     
-    config = lib.mkIf config.mySystem.shell {
+    config = lib.mkIf config.mySystem.shell.zsh {
         users.defaultUserShell = pkgs.zsh;
         programs.zsh = {
             enable = true;
@@ -10,5 +10,5 @@
                 enable = true;
             };
         };
-    }
+    };
 }
