@@ -21,5 +21,18 @@
     
     # Home Manager version - should match your NixOS version
     home.stateVersion = "25.05";
+
+    programs.zsh = {
+        enable = true;
+        enableCompletion = true;
+        autosuggestion.enable = true;
+        syntaxHighlighting.enable = true;
+
+        oh-my-zsh = {
+            enable = true;
+            theme = "linuxonly";  # Set the Oh My Zsh theme to 'linuxonly'
+            plugins = [ "git" "sudo" ];  # List of Oh My Zsh plugins to enable
+        };
+    };
 }
 
