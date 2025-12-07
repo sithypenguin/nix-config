@@ -13,6 +13,7 @@
         "temperature"
     ],
     "modules-right": [
+        "pulseaudio/slider",
         "backlight",
         "battery",
         "bluetooth",
@@ -78,6 +79,11 @@
         "format": "<span size='x-large'>󰔐</span> {temperatureC}°C",
         "interval": 1,
         "on-click": "ghostty -e watch -n 1 sensors"
+    },
+    "pulseaudio/slider": {
+        "min": 0,
+        "max": 100,
+        "orientation": "horizontal"
     },
     "backlight": {
         "format": "<span size='x-large'>󰃞</span> {percent}%",

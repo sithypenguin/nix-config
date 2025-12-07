@@ -96,6 +96,53 @@ window#waybar {
     color: #A8AAD1;
 }
 
+#pulseaudio-slider {
+    padding: 2px 14px;
+    margin: 2px 5px;
+    background: rgba(79, 82, 141, 0.15);
+    border: 1px solid rgba(94, 97, 168, 0.25);
+    border-radius: 14px;
+    min-width: 120px;
+}
+
+#pulseaudio-slider:hover {
+    background: rgba(79, 82, 141, 0.3);
+    box-shadow: 0 0 12px rgba(79, 82, 141, 0.4);
+    border: 1px solid rgba(94, 97, 168, 0.4);
+}
+
+#pulseaudio-slider slider {
+    min-height: 0px;
+    min-width: 0px;
+    opacity: 0;
+    background-image: none;
+    border: none;
+    box-shadow: none;
+}
+
+#pulseaudio-slider trough {
+    min-height: 8px;
+    min-width: 80px;
+    border-radius: 5px;
+    background: rgba(11, 35, 53, 0.5);
+    border: 1px solid rgba(30, 50, 90, 0.3);
+}
+
+#pulseaudio-slider highlight {
+    min-width: 10px;
+    border-radius: 5px;
+    /* Gradient from hot (low volume/left) to cold (high volume/right) */
+    background: linear-gradient(to right,
+        rgba(255, 184, 118, 0.9) 0%,    /* Sun/inner - matches #FFB876 */
+        rgba(224, 122, 54, 0.8) 20%,    /* Inner planet - matches #E07A36 */
+        rgba(107, 91, 149, 0.7) 40%,    /* Mid solar - matches #6B5B95 */
+        rgba(79, 82, 141, 0.7) 60%,     /* Outer mid - matches #4F528D */
+        rgba(59, 130, 246, 0.6) 80%,    /* Cool outer - matches #3B82F6 */
+        rgba(30, 64, 175, 0.6) 100%     /* Deep space - matches #1E40AF */
+    );
+    box-shadow: 0 0 8px rgba(79, 82, 141, 0.3);
+}
+
 /* RIGHT SIDE - Outer Planets - Coolest & Darkest */
 #backlight, #battery {
     padding: 2px 14px;
