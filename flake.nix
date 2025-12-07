@@ -7,10 +7,10 @@
     # nixpkgs-unstable.url specifies the unstable branch of Nixpkgs for newer packages
     # home-manager.url specifies the Home Manager flake
     inputs = {
-        nixpkgs.url = "github:nixos/nixpkgs/nixos-25.05";
+        nixpkgs.url = "github:nixos/nixpkgs/nixos-25.11";
         nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
         home-manager = {
-            url = "github:nix-community/home-manager/release-25.05";
+            url = "github:nix-community/home-manager/release-25.11";
             # This ensures that home-manager uses the same nixpkgs as the flake.
             inputs.nixpkgs.follows = "nixpkgs";
         };
