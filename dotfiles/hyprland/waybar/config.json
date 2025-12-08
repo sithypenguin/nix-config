@@ -57,29 +57,29 @@
     "cpu": {
         "format": "<span size='x-large'>󰘚</span> {usage}%",
         "interval": 1,
-        "on-click": "ghostty -e btop"
+        "on-click": "kitty -e btop"
     },
     "load": {
         "format": "Load:{load1}, {load5}, {load15} ",
         "interval": 5,
-        "on-click": "ghostty -e btop"
+        "on-click": "kitty -e btop"
     },
     "memory": {
         "format": "<span size='x-large'>󰍛</span> {percentage}%",
         "tooltip-format": "{used:0.1f}GB / {total:0.1f}GB",
-        "on-click": "ghostty -e btop"
+        "on-click": "kitty -e btop"
     },
     "disk": {
         "format": "<span size='x-large'>󰋊</span> {percentage_used}%",
-        "tooltip-format": "{used} / {total} used",
-        "on-click": "ghostty -e superfile",
-        "on-click-right": "ghostty -e ncdu ~"
+        "tooltip-format": "💾 Disk Usage\n━━━━━━━━━━━━━━━━━━━━\n📊 {used} / {total} used\n📈 {percentage_used}% full\n\n🖱️ Left Click: superfile\n🖱️ Right Click: ncdu",
+        "on-click": "kitty -e superfile",
+        "on-click-right": "kitty -e ncdu ~"
     },
     "temperature": {
         "thermal-zone": 0,
         "format": "<span size='x-large'>󰔐</span> {temperatureC}°C",
         "interval": 1,
-        "on-click": "ghostty -e watch -n 1 sensors"
+        "on-click": "kitty -e watch -n 1 sensors"
     },
     "pulseaudio/slider": {
         "min": 0,
@@ -101,7 +101,7 @@
             "warning": 30,
             "critical": 15
         },
-        "on-click": "ghostty -e s-tui",
+        "on-click": "kitty -e s-tui",
         "tooltip-format": "{timeTo}\n{capacity}% - {power}W"
     },
     "network": {
@@ -110,7 +110,7 @@
         "format-disconnected": "<span size='x-large'>󰖪</span> Disconnected",
         "tooltip-format": "{ifname}: {ipaddr}/{cidr}",
         "on-click": "nm-connection-editor",
-        "on-click-right": "ghostty -e nmtui"
+        "on-click-right": "kitty -e nmtui"
     },
     "bluetooth": {
         "format": "<span size='x-large'>󰂯</span> {status}",
@@ -119,7 +119,7 @@
         "tooltip-format": "{controller_alias}\t{controller_address}",
         "tooltip-format-connected": "{controller_alias}\t{controller_address}\n\n{device_enumerate}",
         "tooltip-format-enumerate-connected": "{device_alias}\t{device_address}",
-        "on-click": "ghostty -e bluetui",
+        "on-click": "kitty -e bluetui",
         "on-click-right": "rfkill toggle bluetooth"
     },
     "custom/wlogout": {
