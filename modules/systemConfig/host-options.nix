@@ -28,5 +28,14 @@
             zsh = mkEnableOption "Zsh shell";
         };
 
+        desktop = {
+            enable = mkEnableOption "desktop environment";
+            environment = mkOption {
+                type = types.enum [ "plasma6" "gnome" "hyprland" ];
+                default = "plasma6";
+                description = "Desktop environment to use";
+            };
+        };
+
     };
 }

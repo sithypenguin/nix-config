@@ -91,12 +91,13 @@ flowchart TD
     L --> N2["`**modules/hyprland/hyprland-config.nix**
     Symlinks dotfiles to ~/.config`"]
     
-    N2 --> N3["`**dotfiles/hyprland/**
+    N2 --> N3["\`**dotfiles/hyprland/**
     - hypr/ (hyprland.conf, hyprpaper.conf, hyprlock.conf, hypridle.conf)
     - waybar/ (config.json, style.css)
     - wlogout/ (layout, style.css)
     - mako/ (config)
-    - rofi/ (config.rasi)`"]
+    - kitty/ (kitty.conf)
+    - rofi/ (config.rasi)\`"]
     
     F --> N["`**Conditional Evaluation**
     laptop.enable = true triggers:
@@ -178,6 +179,7 @@ imports = [
     ./systemConfig/host-options.nix   # ← OPTIONS DEFINED HERE
     ./systemConfig/networking.nix     # ← Networking config loaded (conditional)
     ./systemConfig/sysConfig.nix      # ← Basic system config loaded
+    ./systemConfig/zsh.nix            # ← Zsh shell config loaded (conditional)
     ./hyprland/cachix.nix             # ← Hyprland binary cache
     ./systemConfig/hyprland.nix       # ← Hyprland system-level config
     ./gaming/steam.nix                # ← Gaming config loaded (conditional)
@@ -203,6 +205,7 @@ mySystem = {
     gaming.steam = true;
     development.enable = true;
     hardware.bluetooth = true;
+    shell.zsh = true;
 };
 ```
 
@@ -249,6 +252,15 @@ config = lib.mkIf config.mySystem.hardware.bluetooth {  # ← TRUE, so activates
 ```nix
 config = lib.mkIf config.mySystem.gaming.steam {  # ← TRUE, so activates
     programs.steam.enable = true;
+};
+```
+
+**Zsh Module (zsh.nix)**
+```nix
+config = lib.mkIf config.mySystem.shell.zsh {  # ← TRUE, so activates
+    users.defaultUserShell = pkgs.zsh;
+    programs.zsh.enable = true;
+    programs.zsh.ohMyZsh.enable = true;
 };
 ```
 
@@ -308,6 +320,7 @@ home.file.".config/waybar/style.css".source = ../../dotfiles/hyprland/waybar/sty
 home.file.".config/wlogout/layout".source = ../../dotfiles/hyprland/wlogout/layout;
 home.file.".config/wlogout/style.css".source = ../../dotfiles/hyprland/wlogout/style.css;
 home.file.".config/mako/config".source = ../../dotfiles/hyprland/mako/config;
+home.file.".config/kitty/kitty.conf".source = ../../dotfiles/hyprland/kitty/kitty.conf;
 home.file.".config/rofi/config.rasi".source = ../../dotfiles/hyprland/rofi/config.rasi;
 ```
 
@@ -419,6 +432,14 @@ nix-config/
 ├── flake.nix                    # Entry point - defines all system configurations
 ├── flake.lock                   # Version lock file - pins exact package versions
 ├── configuration.nix            # Main system config - imports modules
+├── assets/                      # Visual assets for Hyprland components
+│   └── wlogout/                # Wlogout power menu icons (Solar System themed)
+│       ├── wlock.svg           # Lock session icon
+│       ├── whibernate.svg      # Hibernate icon
+│       ├── wlogout.svg         # Logout icon
+│       ├── wreboot.svg         # Reboot icon
+│       ├── wshutdown.svg       # Shutdown icon
+│       └── wsuspend.svg        # Suspend icon
 ├── dotfiles/                    # Your actual config files (version controlled)
 │   └── hyprland/
 │       ├── hypr/
@@ -434,6 +455,8 @@ nix-config/
 │       │   └── style.css
 │       ├── mako/
 │       │   └── config
+│       ├── kitty/
+│       │   └── kitty.conf
 │       └── rofi/
 │           └── config.rasi
 ├── hosts/
@@ -476,6 +499,85 @@ nix-config/
 3. **Dotfiles in repo** - Your Hyprland/Waybar/Rofi configs are version-controlled
 4. **No manual steps** - One command sets up everything from scratch
 5. **Hardware-independent** (mostly) - Only `hardware-configuration.nix` is machine-specific
+
+## Configuration Options Explained
+
+### Reserved Options for Future Expansion
+
+The configuration includes two option placeholders that are currently **defined but not actively used** by any modules:
+
+- **`mySystem.gaming.enable`** - Reserved for future gaming-related module conditions
+- **`mySystem.development.enable`** - Reserved for future development tool conditions
+
+**Current Implementation:**
+- Only `mySystem.gaming.steam` is actively used to enable Steam
+- The parent `gaming.enable` and `development.enable` options exist for organizational purposes and future module expansion
+
+**Why Keep Them?**
+These options provide a structured way to group related configurations. In the future, you can add modules that check these options to enable broader gaming or development features beyond just Steam or individual development tools.
+
+**Example Future Use:**
+```nix
+# Future gaming module could check:
+config = lib.mkIf config.mySystem.gaming.enable {
+    # Enable game controllers, performance tweaks, etc.
+};
+
+# Future development module could check:
+config = lib.mkIf config.mySystem.development.enable {
+    # Enable Docker, additional IDEs, databases, etc.
+};
+```
+
+**Current Behavior:**
+Setting these to `true` or `false` in your profile has no effect on the system. They're simply organizational markers for future use.
+
+## Wlogout Power Menu Assets
+
+The `assets/wlogout/` directory contains **Solar System themed SVG icons** used by the wlogout power menu. These icons follow the same gradient color scheme as the rest of the Hyprland configuration, transitioning from warm (sun/inner planets) to cool (outer space).
+
+### Icon Files
+
+The directory contains 6 SVG icons, each corresponding to a power management action:
+
+| Icon File | Action | Keybind | Color Theme | System Command |
+|-----------|--------|---------|-------------|----------------|
+| `wlock.svg` | Lock Session | `l` | Warmest - Orange/Amber (Sun) | `loginctl lock-session` |
+| `wlogout.svg` | Logout | `e` | Warm - Orange/Red (Inner Planet) | `loginctl terminate-user $USER` |
+| `wsuspend.svg` | Suspend | `u` | Mid - Purple (Mid System) | `systemctl suspend` |
+| `whibernate.svg` | Hibernate | `h` | Cool - Purple/Blue (Mid System) | `systemctl hibernate` |
+| `wreboot.svg` | Reboot | `r` | Cool Blue (Outer Planet) | `systemctl reboot` |
+| `wshutdown.svg` | Shutdown | `s` | Coldest - Deep Blue (Deep Space) | `systemctl poweroff` |
+
+### How It Works
+
+**1. Layout Configuration** (`dotfiles/hyprland/wlogout/layout`)
+- Defines each button's label, action, display text, and keybind
+- Uses JSON-like format with one object per power action
+- Each entry sets `"circular": true` for rounded button appearance
+
+**2. Style Configuration** (`dotfiles/hyprland/wlogout/style.css`)
+- References SVG icons using absolute paths: `url('/home/sithy/Development/nixos/nix-config/assets/wlogout/[icon].svg')`
+- Applies Solar System color gradient to each button:
+  - **Lock/Logout**: `rgba(224, 122, 54)` - Warm orange
+  - **Suspend/Hibernate**: `rgba(107, 91, 149)` - Purple transitions
+  - **Reboot**: `rgba(59, 130, 246)` - Outer planet blue
+  - **Shutdown**: `rgba(30, 64, 175)` - Deep space blue
+- Hover effects intensify colors and add glow with `box-shadow`
+
+**3. Integration**
+- Home Manager symlinks these configs to `~/.config/wlogout/`
+- Wlogout reads the layout and applies the CSS styling
+- Icons are displayed centered within each circular button (50% background-size)
+- The gradient creates a visual journey from "active/awake" (warm) to "powered down" (cool)
+
+### Customization
+
+To customize the power menu:
+- **Change icons**: Replace SVG files in `assets/wlogout/` with your own (keep same filenames)
+- **Modify colors**: Edit `dotfiles/hyprland/wlogout/style.css` color values
+- **Adjust layout**: Edit `dotfiles/hyprland/wlogout/layout` to change keybinds, text, or actions
+- After changes, run: `home-manager switch --flake .#sithy@sithy-one`
 
 ## Adding a New Host
 

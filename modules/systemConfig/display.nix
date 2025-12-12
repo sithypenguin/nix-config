@@ -10,7 +10,7 @@
         # Display and desktop environment - use laptop environment if laptop is enabled
         services.displayManager.sddm.enable = lib.mkIf 
             ((config.mySystem.laptop.enable && config.mySystem.laptop.environment == "plasma6") ||
-             (!config.mySystem.laptop.enable && config.mySystem.desktop.environment == "plasma6")
+             (!config.mySystem.laptop.enable && config.mySystem.desktop.environment == "plasma6") ||
              (config.mySystem.laptop.enable && config.mySystem.laptop.environment == "hyprland")) true;
              
         services.desktopManager.plasma6.enable = lib.mkIf 
