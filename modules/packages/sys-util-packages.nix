@@ -39,7 +39,5 @@
         vhs                     # Tool for generating terminal GIFs with code
         gnome-keyring           # GNOME application for managing passwords and encryption keys
         seahorse                # GNOME application for managing encryption keys and passwords
-        
-
     ];
 }
