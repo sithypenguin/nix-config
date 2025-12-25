@@ -11,7 +11,6 @@
         nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
         home-manager = {
             url = "github:nix-community/home-manager/release-25.11";
-            # This ensures that home-manager uses the same nixpkgs as the flake.
             inputs.nixpkgs.follows = "nixpkgs";
         };
     };
@@ -25,7 +24,7 @@
     # System architecture - could be aarch64-linux for ARM
     system = "x86_64-linux";
 
-    # Creates a packaage set from unstable nixpkgs with unfree packages allowed
+    # Creates a package set from unstable nixpkgs with unfree packages allowed
     pkgs-unstable = import nixpkgs-unstable {
         inherit system;
         config = { allowUnfree = true; };
@@ -71,6 +70,7 @@
         # Define available NixOS system configurations
         nixosConfigurations = {
         sithy-one = mkHost { hostname = "sithy-one"; };
+        sithy-top = mkHost { hostname = "sithy-top"; };
         # Add more hosts easily:
         # another-host = mkHost { hostname = "another-host"; username = "differentuser"; };
         };

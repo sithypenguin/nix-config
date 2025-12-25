@@ -5,7 +5,7 @@
         laptop = {
             enable = mkEnableOption "laptop environment";
             environment = mkOption {
-                type = types.enum [ "plasma6" "gnome" "hyprland" ];
+                type = types.enum [ "plasma6" "hyprland" ];
                 default = "plasma6";
                 description = "Laptop environment to use";
             };
@@ -31,7 +31,7 @@
         desktop = {
             enable = mkEnableOption "desktop environment";
             environment = mkOption {
-                type = types.enum [ "plasma6" "gnome" "hyprland" ];
+                type = types.enum [ "plasma6" "hyprland" ];
                 default = "plasma6";
                 description = "Desktop environment to use";
             };
