@@ -48,6 +48,7 @@
                 home-manager.nixosModules.home-manager
                 {
                     home-manager.useUserPackages = true;
+                    home-manager.backupFileExtension = "backup";
 
                     # Import user's home.nix configuration.
                     home-manager.users.${username} = import ./users/${username}/home.nix;
