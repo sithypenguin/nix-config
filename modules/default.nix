@@ -12,7 +12,6 @@
         ./systemConfig/sysConfig.nix
         ./systemConfig/zsh.nix
         ./systemConfig/hyprland.nix
-        ./systemConfig/printing.nix
         ./hyprland/cachix.nix
         ./gaming/steam.nix
         ../users/users.nix

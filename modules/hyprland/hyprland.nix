@@ -54,9 +54,6 @@ in
 
         ## Calculator
         qalculate-gtk
-        
-        ## Printing
-        system-config-printer
     ];
 
     # Simply enable the service that the package already provides
