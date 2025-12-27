@@ -8,5 +8,6 @@
 		isd
 		s-tui
 		vhs
+		superfile
 	];
 }
