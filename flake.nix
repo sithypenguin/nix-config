@@ -32,7 +32,7 @@
 
     # Helper function to create NixOS systems for different hosts
     # When called, it takes in hostname, username (but will default to "sithy") and optional extra modules
-    mkHost = { hostname, username ? "sithy", extraModules ? [] }:
+    mkHost = { hostname, username ? "sithy", extraModules ? []}:
 
         # nixpkgs.lib.nixosSystem is provided by NixOS
         nixpkgs.lib.nixosSystem{
@@ -46,18 +46,15 @@
 
                 # Home Manager integration for user-specific configuration
                 home-manager.nixosModules.home-manager
-                {
-                    home-manager.useUserPackages = true;
-                    home-manager.backupFileExtension = "backup";
-
-                    # Import user's home.nix configuration.
-                    home-manager.users.${username} = import ./users/${username}/home.nix;
-
-                    # Pass extra arguments to home-manager modules
-                    home-manager.extraSpecialArgs = {
-                        inherit pkgs-unstable;
-                    };
-                }
+                ({ config, ... }: {
+                  home-manager.useUserPackages = true;
+                  home-manager.backupFileExtension = "backup";
+                  home-manager.users.${username} = import ./users/${username}/home.nix;
+                  home-manager.extraSpecialArgs = {
+                    inherit pkgs-unstable hostname;
+                    mySystem = config.mySystem;  # now in scope
+                  };
+                })
             ] ++ extraModules; # Appends any additional modules passed to mkHost
 
             # Pass extra arguments to all NixOS modules
