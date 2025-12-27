@@ -35,6 +35,7 @@
                 default = "plasma6";
                 description = "Desktop environment to use";
             };
+            nvidia = mkEnableOption "Nvidia drivers";
         };
 
     };
