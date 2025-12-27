@@ -6,6 +6,9 @@
   home.file.".config/hypr/hyprpaper.conf".source = ../../dotfiles/hyprland/hypr/hyprpaper.conf;
   home.file.".config/hypr/hyprlock.conf".source = ../../dotfiles/hyprland/hypr/hyprlock.conf;
   home.file.".config/hypr/hypridle.conf".source = ../../dotfiles/hyprland/hypr/hypridle.conf;
+
+  # Hyprpaper picture files
+  home.file.".config/hypr/wallpapers/oled-solar-system.png".source = ../../assets/background-pictures/oled-solar-system.png;
   
   # Waybar configuration
   home.file.".config/waybar/config.json".source = ../../dotfiles/hyprland/waybar/config.json;
