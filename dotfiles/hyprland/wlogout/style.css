@@ -39,7 +39,7 @@ button:active {
 
 /* Lock - Warmest (Sun/Inner Planets) */
 #lock {
-    background-image: image(url('icons/wlock.svg'));
+    background-image: image(url('..//..//../assets/wlogout/wlock.svg'));
     background-color: rgba(224, 122, 54, 0.15);
     border: 2px solid rgba(255, 184, 118, 0.3);
     background-size: 50% ;
@@ -55,7 +55,7 @@ button:active {
 
 /* Logout - Warm Inner Planet */
 #logout {
-    background-image: image(url('icons/wlogout.svg'));
+    background-image: image(url('..//..//../assets/wlogout/wlogout.svg'));
     background-color: rgba(198, 100, 44, 0.15);
     border: 2px solid rgba(224, 122, 54, 0.3);
 }
@@ -68,7 +68,7 @@ button:active {
 
 /* Suspend - Mid System Purple */
 #suspend {
-    background-image: image(url('icons/wsuspend.svg'));
+    background-image: image(url('..//..//../assets/wlogout/wsuspend.svg'));
     background-color: rgba(107, 91, 149, 0.15);
     border: 2px solid rgba(123, 104, 160, 0.25);
 }
@@ -81,7 +81,7 @@ button:active {
 
 /* Hibernate - Cool Mid System */
 #hibernate {
-    background-image: image(url('icons/whibernate.svg'));
+    background-image: image(url('..//..//../assets/wlogout/whibernate.svg'));
     background-color: rgba(79, 82, 141, 0.15);
     border: 2px solid rgba(94, 97, 168, 0.25);
 }
@@ -94,7 +94,7 @@ button:active {
 
 /* Reboot - Outer Planet Blue */
 #reboot {
-    background-image: image(url('icons/wreboot.svg'));
+    background-image: image(url('..//..//../assets/wlogout/wreboot.svg'));
     background-color: rgba(59, 130, 246, 0.15);
     border: 2px solid rgba(96, 165, 250, 0.25);
 }
@@ -107,7 +107,7 @@ button:active {
 
 /* Shutdown - Deep Space (Coldest/Darkest) */
 #shutdown {
-    background-image: image(url('icons/wshutdown.svg'));
+    background-image: image(url('..//..//../assets/wlogout/wshutdown.svg'));
     background-color: rgba(30, 64, 175, 0.15);
     border: 2px solid rgba(59, 130, 246, 0.25);
 }
