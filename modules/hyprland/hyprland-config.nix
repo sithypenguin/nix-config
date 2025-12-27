@@ -14,6 +14,11 @@
   # Wlogout configuration
   home.file.".config/wlogout/layout".source = ../../dotfiles/hyprland/wlogout/layout;
   home.file.".config/wlogout/style.css".source = ../../dotfiles/hyprland/wlogout/style.css;
+  # Wlogout icons copied into the config directory for portable paths
+  home.file.".config/wlogout/icons" = {
+    source = ../../assets/wlogout;
+    recursive = true;
+  };
   
   # Mako configuration
   home.file.".config/mako/config".source = ../../dotfiles/hyprland/mako/config;
