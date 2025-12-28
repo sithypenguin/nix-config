@@ -56,8 +56,11 @@ in
         ## Calculator
         qalculate-gtk
 
-        # Hyprland System Info
+        ## Hyprland System Info
         hyprsysteminfo
+
+        ## Brightness control
+        brightnessctl
     ];
 
     # Simply enable the service that the package already provides
