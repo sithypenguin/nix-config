@@ -42,47 +42,83 @@ This repo demonstrates:
 ### Execution Flow (Mermaid Diagram)
 
 ```mermaid
+%%{init: {'theme':'base', 'themeVariables': {
+  'primaryColor':'#1e293b',
+  'primaryTextColor':'#e2e8f0',
+  'primaryBorderColor':'#475569',
+  'lineColor':'#64748b',
+  'fontSize':'13px',
+  'fontFamily':'monospace'
+}}}%%
 graph TD
-    A["sudo nixos-rebuild switch --flake .#sithy-one"] -->|reads| B["flake.nix"]
-    B -->|calls mkHost with hostname| C["mkHost function"]
-    C -->|builds NixOS config for| D["sithy-one"]
+    A["sudo nixos-rebuild switch --flake .#sithy-one"]:::command -->|reads| B["flake.nix"]:::flake
+    B -->|calls mkHost with hostname| C["mkHost function"]:::flake
+    C -->|builds NixOS config for| D["sithy-one"]:::flake
     
-    D --> E["configuration.nix<br/>top-level system config"]
-    E --> F["modules/default.nix<br/>aggregates all system modules"]
-    F --> G["modules/systemConfig/*<br/>audio, display, fonts,<br/>networking, hyprland, etc."]
-    F --> H["modules/gaming/steam.nix<br/>conditional on mySystem"]
-    F --> I["users/users.nix<br/>system-level user defs"]
+    D --> E["configuration.nix<br/>top-level system config"]:::sysConfig
+    E --> F["modules/default.nix<br/>aggregates all system modules"]:::sysConfig
+    F --> G["modules/systemConfig/*<br/>audio, display, fonts,<br/>networking, hyprland, etc."]:::sysModules
+    F --> H["modules/gaming/steam.nix<br/>conditional on mySystem"]:::sysModules
+    F --> I["users/users.nix<br/>system-level user defs"]:::sysModules
     
-    D --> J["hosts/sithy-one/default.nix<br/>host-specific config"]
-    J --> K["hardware-configuration.nix<br/>auto-detected hardware"]
-    J --> L["modules/profiles/laptop.nix<br/>sets mySystem.* options"]
+    D --> J["hosts/sithy-one/default.nix<br/>host-specific config"]:::hostFiles
+    J --> K["hardware-configuration.nix<br/>auto-detected hardware"]:::hostFiles
+    J --> L["modules/profiles/laptop.nix<br/>sets mySystem.* options"]:::hostFiles
     
-    E --> M["Passes to Home Manager:<br/>hostname + mySystem config"]
-    M --> N["users/sithy/home.nix<br/>user-level packages & dotfiles"]
-    N --> O["getProfile function<br/>looks up enabled categories"]
-    O -->|reads enabledProfilesByHost| P["'sithy-one' maps to<br/>base, network, gui, hyprland"]
-    P --> Q["modules/packages/base/*<br/>core, cli-tools, dev-tools"]
-    P --> R["modules/packages/network/*<br/>wireless, bluetooth"]
-    P --> S["modules/packages/gui/*<br/>base, multimedia, office, etc."]
-    P --> T["modules/hyprland/*<br/>waybar, mako, hyprlock, etc."]
+    E --> M["Passes to Home Manager:<br/>hostname + mySystem config"]:::bridge
+    M --> N["users/sithy/home.nix<br/>user-level packages & dotfiles"]:::hmConfig
+    N --> O["getProfile function<br/>looks up enabled categories"]:::hmConfig
+    O -->|reads enabledProfilesByHost| P["'sithy-one' maps to<br/>base, network, gui, hyprland"]:::hmConfig
+    P --> Q["modules/packages/base/*<br/>core, cli-tools, dev-tools"]:::packages
+    P --> R["modules/packages/network/*<br/>wireless, bluetooth"]:::packages
+    P --> S["modules/packages/gui/*<br/>base, multimedia, office, etc."]:::packages
+    P --> T["modules/hyprland/*<br/>waybar, mako, hyprlock, etc."]:::packages
     
-    T --> U["modules/hyprland/hyprland-config.nix"]
-    U -->|symlinks| V["dotfiles/hyprland/hypr/*<br/>hyprland.conf, hyprpaper.conf, etc."]
+    T --> U["modules/hyprland/hyprland-config.nix"]:::dotfiles
+    U -->|symlinks| V["dotfiles/hyprland/hypr/*<br/>hyprland.conf, hyprpaper.conf, etc."]:::dotfiles
     
-    Q --> W["home.packages<br/>user-level packages"]
+    Q --> W["home.packages<br/>user-level packages"]:::output
     R --> W
     S --> W
     T --> W
     
-    G --> X["system.packages<br/>system-level packages"]
+    G --> X["system.packages<br/>system-level packages"]:::output
     H --> X
     I --> X
     
-    W --> Y["Result: sithy-one<br/>with Hyprland + user packages<br/>+ symlinked configs"]
+    W --> Y["Result: sithy-one<br/>with Hyprland + user packages<br/>+ symlinked configs"]:::final
     X --> Y
     L --> Y
     K --> Y
+    
+    classDef command fill:#7c3aed,stroke:#a78bfa,stroke-width:2px,color:#f3e8ff
+    classDef flake fill:#2563eb,stroke:#60a5fa,stroke-width:2px,color:#dbeafe
+    classDef sysConfig fill:#0891b2,stroke:#22d3ee,stroke-width:2px,color:#cffafe
+    classDef sysModules fill:#059669,stroke:#34d399,stroke-width:2px,color:#d1fae5
+    classDef hostFiles fill:#ca8a04,stroke:#facc15,stroke-width:2px,color:#fef9c3
+    classDef bridge fill:#64748b,stroke:#94a3b8,stroke-width:2px,color:#f1f5f9
+    classDef hmConfig fill:#dc2626,stroke:#f87171,stroke-width:2px,color:#fee2e2
+    classDef packages fill:#ea580c,stroke:#fb923c,stroke-width:2px,color:#ffedd5
+    classDef dotfiles fill:#c026d3,stroke:#e879f9,stroke-width:2px,color:#fae8ff
+    classDef output fill:#0284c7,stroke:#38bdf8,stroke-width:2px,color:#e0f2fe
+    classDef final fill:#15803d,stroke:#4ade80,stroke-width:3px,color:#dcfce7
 ```
+
+
+**Color coding for clarity:**
+- **Purple** - Entry command
+- **Blue** - Flake infrastructure (entry point files)
+- **Cyan** - System configuration core
+- **Green** - System modules & services
+- **Yellow** - Host-specific files (hardware, profiles)
+- **Gray** - Bridge/transition to Home Manager
+- **Red** - Home Manager configuration logic
+- **Orange** - User package modules
+- **Magenta** - Dotfile symlinks
+- **Sky Blue** - Merged outputs
+- **Bright Green** - Final result
+
+Each color represents a distinct functional area, making it easy to trace the flow from command → flake → system config → host config → Home Manager → packages → result.
 
 ### Configuration Flow (Text View)
 
