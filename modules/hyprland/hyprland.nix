@@ -9,6 +9,7 @@ in
 
         ## Notifications
         unstable.mako
+        unstable.swaynotificationcenter
 
         ## Audio
         unstable.pipewire
@@ -54,6 +55,9 @@ in
 
         ## Calculator
         qalculate-gtk
+
+        # Hyprland System Info
+        hyprsysteminfo
     ];
 
     # Simply enable the service that the package already provides
