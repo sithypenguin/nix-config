@@ -1,38 +1,34 @@
-# NixOS Configuration
+# !!AI Generated!!
 
-Multi-host NixOS configuration using flakes with Home Manager integration for user-level package management and declarative dotfile management for Hyprland.
+# NixOS + Flakes: Multi-Host Configuration
 
-## Quick Start: From Zero to This Exact Setup
+A modular, reproducible NixOS setup for **two hosts** using Flakes + Home Manager.
 
-1. **Install NixOS** with any basic configuration
-2. **Clone this repository:**
+- **sithy-one**: Laptop running Hyprland (window manager) with user-level packages and dotfiles
+- **sithy-top**: Desktop running Plasma6 (full DE) with user-level packages
+
+**For newcomers to NixOS/Flakes**: This repo teaches how hosts are built from modules, how custom options control behavior conditionally, how Home Manager keeps user packages separate, and why everything is reproducible.
+
+## Quick Start
+
+1. Fresh NixOS install (keep the generated `hardware-configuration.nix`).
+2. Clone and apply:
    ```bash
-   git clone https://github.com/sithypenguin/nix-config.git ~/Development/nix-dev/nix-config
+   git clone https://github.com/sithypenguin/nix-config ~/Development/nix-dev/nix-config
    cd ~/Development/nix-dev/nix-config
+   sudo nixos-rebuild switch --flake .#sithy-one    # or sithy-top
    ```
-3. **Apply the configuration for your host:**
-   ```bash
-   sudo nixos-rebuild switch --flake .#sithy-one
-   # or
-   sudo nixos-rebuild switch --flake .#sithy-top
-   ```
-4. **Log out and select your desktop environment** from your display manager
-5. **Done!** Everything is configured exactly as shown in this repo
+3. Reboot and choose your DE at login.
 
-## Available Hosts
+## What This Teaches
 
-- **sithy-one** - Laptop with Hyprland window manager, user packages via Home Manager
-- **sithy-top** - Desktop with Plasma6 desktop environment, Steam, user packages via Home Manager
-
-## Features
-
-- ✅ **Declarative system configuration** with NixOS flakes
-- ✅ **Home Manager integration** for user-level package management
-- ✅ **Host-driven package selection** - Each host has its own enabled package categories
-- ✅ **Dotfile management** - Hyprland configs version-controlled and symlinked to `~/.config/`
-- ✅ **Multiple desktop environments** - Plasma6 (sithy-top) and Hyprland (sithy-one)
-- ✅ **Minimal system packages** - Maximize packages at user level (HM) for easier management
-- ✅ **Fully reproducible** - Pull this repo and rebuild on any machine
+This repo demonstrates:
+- **Flakes**: Pinning versions, defining multi-host builds, passing args to modules
+- **Modules & merge order**: How `imports` works, how NixOS merges configs, why order matters
+- **Custom options pattern**: Define once (`host-options.nix`), set per-host (`profiles/`), use conditionally (`lib.mkIf`)
+- **Home Manager**: User packages separate from system, host-driven selection via `enabledProfilesByHost`
+- **Dotfiles as code**: Hyprland configs version-controlled and symlinked declaratively
+- **Why reproducible**: No scripts, no manual setup, same result on any machine
 
 ## Architecture & Design
 
@@ -43,7 +39,52 @@ Multi-host NixOS configuration using flakes with Home Manager integration for us
 3. **Category-Based Packages**: Packages organized by purpose (base, network, gui, gaming) and imported per-host via `enabledProfilesByHost`
 4. **Declarative Dotfiles**: Hyprland configuration files in `dotfiles/hyprland/` are symlinked and managed by Home Manager
 
-### Configuration Flow
+### Execution Flow (Mermaid Diagram)
+
+```mermaid
+graph TD
+    A["sudo nixos-rebuild switch --flake .#sithy-one"] -->|reads| B["flake.nix"]
+    B -->|calls mkHost with hostname| C["mkHost function"]
+    C -->|builds NixOS config for| D["sithy-one"]
+    
+    D --> E["configuration.nix<br/>top-level system config"]
+    E --> F["modules/default.nix<br/>aggregates all system modules"]
+    F --> G["modules/systemConfig/*<br/>audio, display, fonts,<br/>networking, hyprland, etc."]
+    F --> H["modules/gaming/steam.nix<br/>conditional on mySystem"]
+    F --> I["users/users.nix<br/>system-level user defs"]
+    
+    D --> J["hosts/sithy-one/default.nix<br/>host-specific config"]
+    J --> K["hardware-configuration.nix<br/>auto-detected hardware"]
+    J --> L["modules/profiles/laptop.nix<br/>sets mySystem.* options"]
+    
+    E --> M["Passes to Home Manager:<br/>hostname + mySystem config"]
+    M --> N["users/sithy/home.nix<br/>user-level packages & dotfiles"]
+    N --> O["getProfile function<br/>looks up enabled categories"]
+    O -->|reads enabledProfilesByHost| P["'sithy-one' maps to<br/>base, network, gui, hyprland"]
+    P --> Q["modules/packages/base/*<br/>core, cli-tools, dev-tools"]
+    P --> R["modules/packages/network/*<br/>wireless, bluetooth"]
+    P --> S["modules/packages/gui/*<br/>base, multimedia, office, etc."]
+    P --> T["modules/hyprland/*<br/>waybar, mako, hyprlock, etc."]
+    
+    T --> U["modules/hyprland/hyprland-config.nix"]
+    U -->|symlinks| V["dotfiles/hyprland/hypr/*<br/>hyprland.conf, hyprpaper.conf, etc."]
+    
+    Q --> W["home.packages<br/>user-level packages"]
+    R --> W
+    S --> W
+    T --> W
+    
+    G --> X["system.packages<br/>system-level packages"]
+    H --> X
+    I --> X
+    
+    W --> Y["Result: sithy-one<br/>with Hyprland + user packages<br/>+ symlinked configs"]
+    X --> Y
+    L --> Y
+    K --> Y
+```
+
+### Configuration Flow (Text View)
 
 ```
 sudo nixos-rebuild switch --flake .#sithy-one
@@ -142,6 +183,189 @@ Plus Hyprland-specific packages (waybar, mako, hyprlock, etc.)
 
 **modules/packages/gaming/**
 - [steam.nix](modules/packages/gaming/steam.nix) - Steam (sithy-top only)
+
+## Understanding Flakes & NixOS: Key Concepts
+
+### What Is a Flake?
+
+A **Flake** is a standardized way to package a Nix project. Instead of ad-hoc scripts and implicit dependencies, a `flake.nix` file:
+- **Declares inputs** (what packages/versions you need from nixpkgs)
+- **Defines outputs** (what builds you produce: NixOS configs, Home Manager configs, etc.)
+- **Locks versions** (flake.lock pins exact commits so rebuilds are identical)
+
+Think of it like Cargo.lock for Rust or yarn.lock for Node.js—but for entire Linux system configurations.
+
+### The Module System
+
+In NixOS, everything is a **module**. A module is a function that returns a set of options and their values:
+
+```nix
+{ config, pkgs, lib, ... }:
+{
+  options = {
+    # Define new options here
+  };
+  config = {
+    # Set options here
+  };
+}
+```
+
+When you import multiple modules, NixOS **merges them together** by key. For example:
+
+```nix
+# Module A
+{ services.pipewire.enable = true; }
+
+# Module B  
+{ services.pipewire.extra_settings = {...}; }
+
+# Result after merge
+{ services.pipewire = {
+    enable = true;
+    extra_settings = {...};
+  };
+}
+```
+
+**Key insight**: `imports` doesn't execute files; it **includes them in the merge**. The order of imports affects which values "win" when there are conflicts.
+
+### Custom Options (The Pattern Used Here)
+
+This repo uses the **options pattern** to control conditional behavior:
+
+1. **Define** options in one file (`modules/systemConfig/host-options.nix`):
+   ```nix
+   options.mySystem.laptop.enable = lib.mkOption {
+     type = lib.types.bool;
+     default = false;
+   };
+   ```
+
+2. **Set** options per-host (`modules/profiles/laptop.nix`):
+   ```nix
+   config.mySystem.laptop.enable = true;
+   ```
+
+3. **Use** options conditionally throughout modules:
+   ```nix
+   config = lib.mkIf config.mySystem.laptop.enable {
+     services.pipewire.enable = true;
+   };
+   ```
+
+This pattern avoids **if-then-else logic scattered everywhere** and keeps config concerns organized by role.
+
+### Why `lib.mkIf` and `lib.mkOption`?
+
+The `lib.mk*` functions are **merge-aware**:
+- `lib.mkOption` tells NixOS "this is a defined option that can be set"
+- `lib.mkIf` says "only include this config if this condition is true"
+- `lib.mkDefault` sets a default that can be overridden by other modules
+
+They exist because **merging is more complex than concatenation**. Without them, NixOS wouldn't know how to handle conflicting definitions.
+
+### Home Manager Integration
+
+Home Manager is a **separate NixOS module** that runs **after** the system is built. It:
+1. Reads the system's final config (passed via `extraSpecialArgs`)
+2. Builds user-level packages and dotfiles
+3. Symlinks them to `~/.config/`, `~/.local/`, etc.
+4. Runs home-manager activation scripts
+
+**Key point**: Home Manager sees `config.mySystem` because `flake.nix` passes it via `extraSpecialArgs`. This is how `enabledProfilesByHost` in `users/sithy/home.nix` can check the hostname.
+
+## Common Pitfalls & Misunderstandings
+
+### "I edited a config file in `~/.config/` but it didn't persist after reboot"
+
+**Problem**: Files in `~/.config/hyprland/` are **symlinks to the Nix store**, which is read-only. Editing them directly doesn't change the source.
+
+**Solution**: Edit the source file in `dotfiles/hyprland/`, then rebuild Home Manager:
+```bash
+nano dotfiles/hyprland/hypr/hyprland.conf
+home-manager switch --flake .#sithy@sithy-one
+```
+
+### "I added a package to a module but it didn't install"
+
+**Check**:
+1. Is the package category in `enabledProfilesByHost` for your host?
+   - If not, add it: `"sithy-one" = [ "gui.base" /* add here */ ];`
+2. Did you run the right rebuild command?
+   - `home-manager switch --flake .#sithy@sithy-one` for HM changes
+   - `sudo nixos-rebuild switch --flake .#sithy-one` for system changes
+3. Is the package in nixpkgs?
+   - Check: `nix search nixpkgs your-package-name`
+   - If it doesn't exist, you may need to add custom derivations
+
+### "Everything rebuilds when I only changed a user package"
+
+**Problem**: You ran `sudo nixos-rebuild switch` instead of `home-manager switch`.
+
+**Solution**: Use the right tool:
+- **System changes** (PipeWire, bootloader, fonts, services): `sudo nixos-rebuild switch --flake .#sithy-one`
+- **User packages only**: `home-manager switch --flake .#sithy@sithy-one` (10x faster, no sudo)
+- **Dotfiles only**: `home-manager switch --flake .#sithy@sithy-one`
+
+### "I want to use a package from nixpkgs-unstable instead of the stable channel"
+
+**Solution**: The `flake.nix` already imports both `nixpkgs` (stable, 25.11) and `nixpkgs-unstable`. To use unstable:
+
+```nix
+# In any module
+{ pkgs, ... }:
+{
+  home.packages = [
+    inputs.nixpkgs-unstable.legacyPackages.${pkgs.system}.firefox  # unstable
+    pkgs.firefox  # stable
+  ];
+}
+```
+
+But you need to pass `inputs` through `extraSpecialArgs` first. Check the flake.nix.
+
+### "Why can't I just use `environment.systemPackages` for everything?"
+
+You can, but:
+- **System packages** require `sudo nixos-rebuild switch` (rebuilds kernel, services, etc.)
+- **Home Manager packages** rebuild in seconds, can be done per-user
+- **Mixing them** makes it hard to know what broke or what needs what
+
+This repo keeps system packages minimal (just what the system *needs*) and user packages maximal (everything else). It's cleaner and faster.
+
+### "I cloned this on a new host and it doesn't work"
+
+**Check**:
+1. Is the `hardware-configuration.nix` correct?
+   - The installer generates this automatically; it detects your hardware
+   - Don't copy one from another machine
+2. Does the hostname match a host in flake.nix?
+   - You get `sithy-one` and `sithy-top` only
+   - To add a new host, see "Add a New Host" section below
+3. Is NixOS 24.11+ installed?
+   - Check: `nix --version` and `nixos-version`
+   - This config uses 25.11; older versions may not work
+
+### "Modules are 'evaluated' in a random order, how do I control when mine runs?"
+
+**Misconception**: Modules are not evaluated in random order; they're evaluated **once all imports are collected**. NixOS builds a giant set of all option definitions, then merges them.
+
+**You control order with**:
+- `imports = [ ./other.nix ];` — include another module
+- `lib.mkIf condition { ... }` — conditionally set values
+- `lib.mkAfter` / `lib.mkBefore` — control merge priority for list options (rarely needed)
+
+In practice, **order doesn't matter** because options are designed to be **order-independent** (idempotent).
+
+### "How do I know if a module will break something?"
+
+Test it:
+```bash
+nix flake check --flake .  # Evaluates without building
+```
+
+This checks if the config is syntactically valid and logically sound, without actually building the system. It's fast and safe.
 
 ## Making Changes
 
@@ -371,23 +595,59 @@ home-manager switch --flake .#sithy@sithy-one
    sudo nixos-rebuild switch --flake .#your-hostname
    ```
 
-## Learning Resources
+## Learning Resources & Study Path
 
-The `docs/` directory contains standalone, progressive examples that teach NixOS flakes concepts step-by-step. These are **not imported** by the configuration but serve as learning material:
+### For Complete Newcomers to NixOS/Flakes
 
-- [01-minimal-single-host](docs/examples/01-minimal-single-host/) - Simplest possible flake + single host
-- [02-with-modules](docs/examples/02-with-modules/) - How modules merge and organize
-- [03-with-options](docs/examples/03-with-options/) - Custom options + conditional modules (the pattern used here)
-- [04-multi-host](docs/examples/04-multi-host/) - Multi-host with mkHost (as implemented here)
+Start here if this is your first exposure to declarative Linux configs:
 
-Work through these in order to understand the architecture before diving into the full config.
+1. **Understand the philosophy**: Read [What is Nix?](https://www.tweag.io/blog/2022-07-04-what-is-nix/) (5 min)
+2. **See how modules work**: [NixOS Modules Explained](https://nixos.wiki/wiki/Modules) (10 min)
+3. **Learn about Flakes**: [Flakes Introduction](https://nixos.wiki/wiki/Flakes) (15 min)
+4. **Try the examples**: Work through `docs/examples/01-minimal-single-host/` → `04-multi-host/` in order
 
-### External Resources
+### Progressive Examples in This Repo
 
-- [NixOS Manual](https://nixos.org/manual/nixos/stable/)
-- [Home Manager Manual](https://nix-community.github.io/home-manager/)
-- [Hyprland Wiki](https://wiki.hyprland.org/)
-- [NixOS Flakes Reference](https://nixos.wiki/wiki/Flakes)
+The `docs/examples/` directory contains **standalone, self-contained** configs you can study:
+
+- [01-minimal-single-host](docs/examples/01-minimal-single-host/) — Simplest flake+NixOS combo; no modules, no Home Manager
+- [02-with-modules](docs/examples/02-with-modules/) — Single host with modules; teaches how `imports` merges configs
+- [03-with-options](docs/examples/03-with-options/) — Custom options + `lib.mkIf`; shows the pattern used in the main config
+- [04-multi-host](docs/examples/04-multi-host/) — Multiple hosts with `mkHost` helper; closest to this repo's architecture
+
+**Study tip**: Copy each example directory to a test machine and run `nix flake check` and `nix flake show` to understand the structure before building.
+
+### Understanding This Repo's Codebase
+
+Read the files in this order (they build conceptually):
+
+1. [flake.nix](flake.nix) — Entry point; defines inputs (nixpkgs versions), `mkHost` helper, outputs (configs for each host)
+2. [modules/systemConfig/host-options.nix](modules/systemConfig/host-options.nix) — Option definitions; defines `mySystem.*` namespace
+3. [modules/profiles/laptop.nix](modules/profiles/laptop.nix) and [desktop.nix](modules/profiles/desktop.nix) — Where `mySystem.*` are set per-role
+4. [configuration.nix](configuration.nix) — Top-level; imports all system modules
+5. [hosts/sithy-one/default.nix](hosts/sithy-one/default.nix) — Host-specific: hardware + profile
+6. [users/sithy/home.nix](users/sithy/home.nix) — Home Manager; defines `enabledProfilesByHost` and `getProfile` function
+
+### External Documentation
+
+- **[NixOS Manual](https://nixos.org/manual/nixos/stable/)** — Official reference (dense, but authoritative)
+- **[Home Manager Manual](https://nix-community.github.io/home-manager/)** — User-level packages and dotfiles
+- **[Nix Pills](https://nixos.org/guides/nix-pills/)** — Tutorial series on how Nix works from first principles
+- **[Hyprland Wiki](https://wiki.hyprland.org/)** — For window manager-specific config
+- **[NixOS Search](https://search.nixos.org/)** — Find packages and options
+
+### Debugging Tips
+
+**"I don't understand how X works"**:
+1. Look at `docs/examples/` first — they're simpler
+2. Run `nix flake show` to see what outputs are defined
+3. Run `nix eval` to inspect values: `nix eval --flake . --raw '#nixosConfigurations.sithy-one.config.mySystem'`
+4. Check the NixOS manual for the specific option you're confused about
+
+**"The build failed with error X"**:
+1. Run `nix flake check` first to catch evaluation errors early
+2. Search the error message in [NixOS Discourse](https://discourse.nixos.org/)
+3. Verify your `hardware-configuration.nix` is correct (run `nixos-generate-config` on the actual machine)
 
 ## License
 
