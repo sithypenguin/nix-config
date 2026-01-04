@@ -75,16 +75,28 @@ in {
   # Home Manager version - should match your NixOS version
   home.stateVersion = "25.05";
 
+  programs.direnv = {
+  enable = true;
+  nix-direnv.enable = true;
+  silent = true;
+};
+
   programs.zsh = {
     enable = true;
     enableCompletion = true;
     autosuggestion.enable = true;
     syntaxHighlighting.enable = true;
 
+    shellAliases = {
+      cdfh = "cd ~/Development/nix-dev/nix-config";
+      nix-flake-test = "sudo nixos-rebuild test --flake .#$HOSTNAME";
+      nix-flake-switch = "sudo nixos-rebuild switch --flake .#$HOSTNAME";
+    };
+
     oh-my-zsh = {
       enable = true;
       theme = "linuxonly";  # Set the Oh My Zsh theme to 'linuxonly'
-      plugins = [ "git" "sudo" ];  # List of Oh My Zsh plugins to enable
+      plugins = [ "git" "sudo" "direnv" ];  # List of Oh My Zsh plugins to enable
     };
   };
 }
