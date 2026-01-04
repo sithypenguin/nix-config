@@ -6,5 +6,6 @@
     bitwarden-desktop
     firefox
     networkmanagerapplet
+    easyeffects
   ];
 }
