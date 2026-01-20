@@ -76,9 +76,9 @@ in {
   home.stateVersion = "25.05";
 
   programs.direnv = {
-  enable = true;
-  nix-direnv.enable = true;
-  silent = true;
+    enable = true;
+    nix-direnv.enable = true;
+    silent = true;
 };
 
   programs.zsh = {
@@ -86,6 +86,10 @@ in {
     enableCompletion = true;
     autosuggestion.enable = true;
     syntaxHighlighting.enable = true;
+
+    initContent = ''
+      eval "$(direnv hook zsh)"
+    '';
 
     shellAliases = {
       cdfh = "cd ~/Development/nix-dev/nix-config";
