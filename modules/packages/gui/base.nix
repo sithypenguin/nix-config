@@ -7,5 +7,6 @@
     firefox
     networkmanagerapplet
     easyeffects
+    chromium
   ];
 }
