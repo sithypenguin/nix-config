@@ -7,6 +7,7 @@
     firefox
     networkmanagerapplet
     easyeffects
+    chromium
     microsoft-edge
   ];
 }
