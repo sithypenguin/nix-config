@@ -75,6 +75,30 @@ in {
   # Home Manager version - should match your NixOS version
   home.stateVersion = "25.05";
 
+  xdg.desktopEntries."PrusaSlicer" = {
+  name = "PrusaSlicer";
+  genericName = "3D Printing Software";
+  # The --single-instance flag is the key here
+  exec = "env DESKTOP_PORTAL_ID=PrusaSlicer prusa-slicer --single-instance %U";
+  icon = "PrusaSlicer";
+  terminal = false;
+  categories = [ "Graphics" "3DGraphics" "Engineering" ];
+  mimeType = [ 
+    "model/stl" 
+    "model/3mf" 
+    "x-scheme-handler/prusaslicer" 
+  ];
+  settings = {
+    StartupWMClass = "prusa-slicer";
+  };
+};
+  # XDG MIME type associations
+  xdg.mimeApps.defaultApplications = {
+    "x-scheme-handler/prusaslicer" = [ "org.kde.klipper.desktop" ];
+  };
+
+  home.preferXdgDirectories = true;
+
   programs.direnv = {
     enable = true;
     nix-direnv.enable = true;
