@@ -17,6 +17,12 @@
             ((config.mySystem.laptop.enable && config.mySystem.laptop.environment == "plasma6") ||
              (!config.mySystem.laptop.enable && config.mySystem.desktop.environment == "plasma6")) true;
 
+        # XDG Desktop Portal configuration
+        /*xdg.portal = {
+            enable = true;
+            extraPortals = [ pkgs.kdePackages.xdg-desktop-portal-kde ];
+            config.common.default = "kde"; # Forces KDE portal for all requests
+        };*/
 
         # Keyboard configuration for X11
         services.xserver.xkb = {
