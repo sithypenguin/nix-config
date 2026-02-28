@@ -2,6 +2,6 @@
 { config, pkgs, pkgs-unstable, ... }:
 {
   home.packages = with pkgs; [
-    prusa-slicer
+    pkgs-unstable.prusa-slicer
   ];
 }
