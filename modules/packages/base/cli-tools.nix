@@ -9,5 +9,6 @@
 		s-tui
 		vhs
 		superfile
+		nvtopPackages.nvidia
 	];
 }
