@@ -18,6 +18,7 @@
 
         development = {
             enable = mkEnableOption "development tools";
+            godot = mkEnableOption "Godot from unstable nixpkgs";
         };
 
         hardware = {

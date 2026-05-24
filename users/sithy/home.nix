@@ -27,6 +27,9 @@ let
     gaming = {
       steam       = import ../../modules/packages/gaming/steam.nix;
     };
+    development = {
+      godot       = import ../../modules/packages/development/godot.nix;
+    };
   };
 
   # Host-driven profile selection; adjust lists per host as needed
@@ -62,6 +65,10 @@ in {
   imports =
     # Host-chosen package categories
     (map getProfile enabled)
+    # Option-based package modules
+    ++ (lib.optionals mySystem.development.godot [
+      profiles.development.godot
+    ])
     # DE-specific user modules
     ++ envModules;
 

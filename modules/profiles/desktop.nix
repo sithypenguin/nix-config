@@ -9,6 +9,7 @@
         gaming.enable = true;
         gaming.steam = true;
         development.enable = true;
+        development.godot = true;
         shell.zsh = true;
     };
 

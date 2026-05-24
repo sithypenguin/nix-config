@@ -3,6 +3,5 @@
 	home.packages = with pkgs; [
 		direnv
 		pkg-config
-		pkgs-unstable.godot
 	];
 }
