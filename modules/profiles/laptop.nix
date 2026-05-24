@@ -9,6 +9,7 @@
         gaming.steam = true;
         development.enable = true;
         hardware.bluetooth = true;
+        development.godot = true;
         shell.zsh = true;
     };
 
