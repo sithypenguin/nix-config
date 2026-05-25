@@ -126,6 +126,6 @@
     "custom/wlogout": {
         "format": "<span size='x-large'>⏻</span>",
         "tooltip": false,
-        "on-click": "wlogout -l /home/sithy/Development/nixos/nix-config/dotfiles/hyprland/wlogout/layout -C/home/sithy/Development/nixos/nix-config/dotfiles/hyprland/wlogout/style.css -b 6"
+        "on-click": "wlogout -l /home/sithy/Development/nix-dev/nix-config/dotfiles/hyprland/wlogout/layout -C/home/sithy/Development/nix-dev/nix-config/dotfiles/hyprland/wlogout/style.css -b 6"
     }
 }
