@@ -1,7 +1,7 @@
 { config, lib, pkgs, ...}:
 
 {
-    config = lib.mkIf (config.mySystem.desktop.enable) {
+    config = lib.mkIf (config.mySystem.desktop.enable && config.mySystem.desktop.nvidia) {
         hardware.graphics = {
             enable = true;
         };
