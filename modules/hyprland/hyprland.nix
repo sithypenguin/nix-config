@@ -45,7 +45,7 @@ in
         unstable.cliphist # Dependency on wl-clipboard
 
         ## File manager
-        xfce.thunar
+        #xfce.thunar
         nemo-with-extensions
 
         ## Screen capture/recording
