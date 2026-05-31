@@ -153,7 +153,7 @@ sudo nixos-rebuild switch --flake .#sithy-one
 ### Home Manager vs. System-Level Split
 
 #### System-Level (modules/systemConfig/, modules/gaming/)
-- **Services & Daemons**: PipeWire, NetworkManager, Bluetooth, Hyprland
+- **Services & Daemons**: PipeWire, NetworkManager, Bluetooth, KDE Connect, Hyprland
 - **Display**: Plasma6/SDDM, Hyprland, display configuration
 - **Drivers & Firmware**: GPU drivers (NVIDIA), hardware support, kernel modules
 - **Fonts**: System-wide fonts (FiraCode Nerd, JetBrains Mono, Font Awesome)
@@ -164,12 +164,13 @@ sudo nixos-rebuild switch --flake .#sithy-one
 - **GUI Applications**: Firefox, VSCode, Discord, VLC, etc.
 - **Development**: git, direnv, language tools (if needed)
 - **Utilities**: CLI tools, TUI apps, terminal emulators
-- **Gaming**: Steam (user-level app; GPU drivers at system-level)
+- **Gaming**: Optional user-level packages layered on top of system Steam support
 - **Dotfiles**: Hyprland config symlinks via `home.file`
 
 This split ensures:
 - Minimal system state (easier to debug, audit)
-- Fast Home Manager updates (no system rebuild needed for app changes)
+- Clear separation between system services and user-facing packages
+- One rebuild path for this flake (`nixos-rebuild`), because Home Manager is integrated as a NixOS module
 - Clear separation of concerns
 - Each user can have different package sets
 
@@ -201,8 +202,8 @@ Plus Hyprland-specific packages (waybar, mako, hyprlock, etc.)
 
 **modules/packages/base/**
 - [core.nix](modules/packages/base/core.nix) - Essential CLI: git, bat, zellij, fastfetch, kitty, zsh, ghostty
-- [cli-tools.nix](modules/packages/base/cli-tools.nix) - Utilities: ncdu, btop, bmon, duf, isd, s-tui, vhs
-- [dev-tools.nix](modules/packages/base/dev-tools.nix) - Development: direnv
+- [cli-tools.nix](modules/packages/base/cli-tools.nix) - Utilities: ncdu, btop, bmon, duf, isd, s-tui, vhs, superfile, pciutils, nvtop
+- [dev-tools.nix](modules/packages/base/dev-tools.nix) - Development: direnv, pkg-config
 
 **modules/packages/network/**
 - [base.nix](modules/packages/network/base.nix) - Diagnostics: clinfo, dnsutils, nettools
@@ -210,15 +211,15 @@ Plus Hyprland-specific packages (waybar, mako, hyprlock, etc.)
 - [bluetooth.nix](modules/packages/network/bluetooth.nix) - Bluetooth: bluetui
 
 **modules/packages/gui/**
-- [base.nix](modules/packages/gui/base.nix) - Core: vscode, bitwarden-desktop, firefox, networkmanagerapplet
-- [multimedia.nix](modules/packages/gui/multimedia.nix) - Media: vlc, spotify, pavucontrol
+- [base.nix](modules/packages/gui/base.nix) - Core: vscode, bitwarden-desktop, firefox, networkmanagerapplet, easyeffects, chromium, microsoft-edge
+- [multimedia.nix](modules/packages/gui/multimedia.nix) - Media: vlc, spotify
 - [office.nix](modules/packages/gui/office.nix) - Productivity: libreoffice, obsidian, drawio
-- [comms.nix](modules/packages/gui/comms.nix) - Communication: discord, telegram-desktop, element-desktop
+- [comms.nix](modules/packages/gui/comms.nix) - Communication: discord, telegram-desktop, element-desktop, kdeconnect-kde
 - [design.nix](modules/packages/gui/design.nix) - Creative: prusa-slicer
 - [tui.nix](modules/packages/gui/tui.nix) - Terminal UI: ncspot
 
 **modules/packages/gaming/**
-- [steam.nix](modules/packages/gaming/steam.nix) - Steam (sithy-top only)
+- [steam.nix](modules/packages/gaming/steam.nix) - Steam user package (enabled only for `sithy-top`; system Steam support is enabled via `mySystem.gaming.steam`)
 
 ## Understanding Flakes & NixOS: Key Concepts
 
@@ -315,12 +316,12 @@ Home Manager is a **separate NixOS module** that runs **after** the system is bu
 
 ### "I edited a config file in `~/.config/` but it didn't persist after reboot"
 
-**Problem**: Files in `~/.config/hyprland/` are **symlinks to the Nix store**, which is read-only. Editing them directly doesn't change the source.
+**Problem**: Files in `~/.config/hypr/` and other Home Manager-managed config paths are **symlinks to the Nix store**, which is read-only. Editing them directly doesn't change the source.
 
-**Solution**: Edit the source file in `dotfiles/hyprland/`, then rebuild Home Manager:
+**Solution**: Edit the source file in `dotfiles/hyprland/`, then rebuild the host through NixOS so Home Manager is re-applied:
 ```bash
 nano dotfiles/hyprland/hypr/hyprland.conf
-home-manager switch --flake .#sithy@sithy-one
+sudo nixos-rebuild switch --flake .#sithy-one
 ```
 
 ### "I added a package to a module but it didn't install"
@@ -329,43 +330,43 @@ home-manager switch --flake .#sithy@sithy-one
 1. Is the package category in `enabledProfilesByHost` for your host?
    - If not, add it: `"sithy-one" = [ "gui.base" /* add here */ ];`
 2. Did you run the right rebuild command?
-   - `home-manager switch --flake .#sithy@sithy-one` for HM changes
-   - `sudo nixos-rebuild switch --flake .#sithy-one` for system changes
+  - `sudo nixos-rebuild switch --flake .#sithy-one` for laptop changes
+  - `sudo nixos-rebuild switch --flake .#sithy-top` for desktop changes
 3. Is the package in nixpkgs?
    - Check: `nix search nixpkgs your-package-name`
    - If it doesn't exist, you may need to add custom derivations
 
 ### "Everything rebuilds when I only changed a user package"
 
-**Problem**: You ran `sudo nixos-rebuild switch` instead of `home-manager switch`.
+**Problem**: You expected a standalone `home-manager switch --flake ...` workflow, but this flake only exposes `nixosConfigurations`.
 
-**Solution**: Use the right tool:
+**Solution**: Use `nixos-rebuild` for repo-driven changes in this flake:
 - **System changes** (PipeWire, bootloader, fonts, services): `sudo nixos-rebuild switch --flake .#sithy-one`
-- **User packages only**: `home-manager switch --flake .#sithy@sithy-one` (10x faster, no sudo)
-- **Dotfiles only**: `home-manager switch --flake .#sithy@sithy-one`
+- **User packages only**: `sudo nixos-rebuild switch --flake .#sithy-one`
+- **Dotfiles only**: `sudo nixos-rebuild switch --flake .#sithy-one`
+
+This repository integrates Home Manager as a NixOS module, so user-level changes still flow through the host rebuild.
 
 ### "I want to use a package from nixpkgs-unstable instead of the stable channel"
 
-**Solution**: The `flake.nix` already imports both `nixpkgs` (stable, 25.11) and `nixpkgs-unstable`. To use unstable:
+**Solution**: The `flake.nix` already imports both `nixpkgs` (stable, 26.05) and `nixpkgs-unstable`. Most Home Manager modules in this repo already receive `pkgs-unstable`, so you can use it directly:
 
 ```nix
-# In any module
-{ pkgs, ... }:
+# In any Home Manager module that already accepts pkgs-unstable
+{ pkgs, pkgs-unstable, ... }:
 {
   home.packages = [
-    inputs.nixpkgs-unstable.legacyPackages.${pkgs.system}.firefox  # unstable
+    pkgs-unstable.firefox  # unstable
     pkgs.firefox  # stable
   ];
 }
 ```
 
-But you need to pass `inputs` through `extraSpecialArgs` first. Check the flake.nix.
-
 ### "Why can't I just use `environment.systemPackages` for everything?"
 
 You can, but:
 - **System packages** require `sudo nixos-rebuild switch` (rebuilds kernel, services, etc.)
-- **Home Manager packages** rebuild in seconds, can be done per-user
+- **Home Manager packages** stay logically separate in the repo, even though this flake applies them through `nixos-rebuild`
 - **Mixing them** makes it hard to know what broke or what needs what
 
 This repo keeps system packages minimal (just what the system *needs*) and user packages maximal (everything else). It's cleaner and faster.
@@ -379,9 +380,9 @@ This repo keeps system packages minimal (just what the system *needs*) and user 
 2. Does the hostname match a host in flake.nix?
    - You get `sithy-one` and `sithy-top` only
    - To add a new host, see "Add a New Host" section below
-3. Is NixOS 24.11+ installed?
+3. Is Nix with flakes available on the target system?
    - Check: `nix --version` and `nixos-version`
-   - This config uses 25.11; older versions may not work
+  - This flake is pinned to the `nixos-26.05` channel
 
 ### "Modules are 'evaluated' in a random order, how do I control when mine runs?"
 
@@ -414,13 +415,13 @@ nano modules/systemConfig/audio.nix
 sudo nixos-rebuild switch --flake .#sithy-one
 ```
 
-### Home Manager Changes (Faster)
+### Home Manager-Managed Changes
 ```bash
 # Edit package list or user config
 nano modules/packages/gui/base.nix
 
-# Rebuild only Home Manager (no system rebuild)
-home-manager switch --flake .#sithy@sithy-one
+# Rebuild the host so the integrated Home Manager config is applied
+sudo nixos-rebuild switch --flake .#sithy-one
 ```
 
 ### Dotfile Changes
@@ -428,8 +429,8 @@ home-manager switch --flake .#sithy@sithy-one
 # Edit Hyprland config
 nano dotfiles/hyprland/hypr/hyprland.conf
 
-# Rebuild Home Manager to symlink changes
-home-manager switch --flake .#sithy@sithy-one
+# Rebuild the host to re-apply Home Manager symlinks
+sudo nixos-rebuild switch --flake .#sithy-one
 ```
 
 **Important:** Files in `~/.config/` are **read-only symlinks** to the Nix store. Always edit the source files in `dotfiles/hyprland/`.
@@ -437,7 +438,7 @@ home-manager switch --flake .#sithy@sithy-one
 ### Cleaning Up
 
 ```bash
-# Delete old Home Manager generations (keep last 5 days)
+# Delete old Home Manager generations (keep last 5 days, if the `home-manager` CLI is installed)
 home-manager expire-generations "-5 days"
 
 # Delete old system generations (keep last 3)
@@ -454,11 +455,13 @@ sudo nix-collect-garbage -d
 nix-config/
 ├── flake.nix                    # Entry point, mkHost function, nixosConfigurations
 ├── flake.lock                   # Pinned package versions
+├── Package List.md              # Package notes/reference
 ├── README.md                    # This file
 │
 ├── configuration.nix            # Main system config, imports modules/
 │
 ├── assets/
+│   ├── background-pictures/     # Wallpaper assets used by Hyprland config
 │   └── wlogout/                 # SVG icons for wlogout power menu
 │
 ├── dotfiles/
@@ -499,6 +502,7 @@ nix-config/
 │   │   ├── bluetooth.nix        # Bluetooth hardware
 │   │   ├── display.nix          # Display/DE/SDDM
 │   │   ├── networking.nix       # NetworkManager
+│   │   ├── nvidia.nix           # NVIDIA driver configuration
 │   │   ├── hyprland.nix         # Hyprland system-level
 │   │   ├── sysConfig.nix        # Bootloader, locale, timezone, etc.
 │   │   └── zsh.nix              # Zsh system config
@@ -529,13 +533,20 @@ nix-config/
 │   │   │   └── tui.nix
 │   │   ├── gaming/
 │   │   │   └── steam.nix
-│   │   ├── sys-util-packages.nix    # OBSOLETE (see base/)
-│   │   ├── gui-packages.nix         # OBSOLETE (see gui/)
-│   │   └── tui-packages.nix         # OBSOLETE (see gui/tui.nix)
 │   │
 │   └── profiles/                # System option presets per role
 │       ├── laptop.nix           # Sets mySystem.* for laptop
-│       └── desktop.nix          # (placeholder for future desktop profile)
+│       └── desktop.nix          # Sets mySystem.* for desktop
+│
+├── obsolete/                    # Old modules kept for reference
+│   ├── fonts.nix.moved
+│   ├── gui-packages.nix
+│   ├── README-empty-dirs.md
+│   ├── roles-desktop.nix
+│   ├── roles-laptop.nix
+│   ├── roles-server.nix
+│   ├── sys-util-packages.nix
+│   └── tui-packages.nix
 │
 ├── users/
 │   ├── users.nix                # System user definitions
@@ -568,12 +579,16 @@ nix-config/
 The system uses custom NixOS options (`mySystem.*`) to control conditional behavior:
 
 ### Current Options (modules/systemConfig/host-options.nix)
-- `mySystem.laptop.enable` - Enables laptop-specific features (display, touchpad, power management)
+- `mySystem.laptop.enable` - Enables laptop-targeted system modules
 - `mySystem.laptop.environment` - `"hyprland"` or `"plasma6"`
+- `mySystem.desktop.enable` - Enables desktop-targeted system modules
+- `mySystem.desktop.environment` - `"hyprland"` or `"plasma6"`
+- `mySystem.desktop.nvidia` - Enables NVIDIA-related desktop settings
 - `mySystem.hardware.bluetooth` - Enable Bluetooth support
 - `mySystem.shell.zsh` - Enable Zsh as default shell
-- `mySystem.gaming.steam` - Enable Steam at system level (sithy-top)
-- `mySystem.gaming.enable`, `mySystem.development.enable` - Reserved for future use
+- `mySystem.gaming.steam` - Enable Steam at system level
+- `mySystem.development.godot` - Enable the Godot package module from `pkgs-unstable`
+- `mySystem.gaming.enable`, `mySystem.development.enable` - Currently defined in options and set by profiles, but not consumed by other modules yet
 
 ### Conditional Module Activation
 
@@ -604,7 +619,7 @@ Edit [users/sithy/home.nix](users/sithy/home.nix) and add a new host-specific ca
 ### Change Hyprland Config
 Edit [dotfiles/hyprland/hypr/hyprland.conf](dotfiles/hyprland/hypr/hyprland.conf), then:
 ```bash
-home-manager switch --flake .#sithy@sithy-one
+sudo nixos-rebuild switch --flake .#sithy-one
 ```
 
 ### Add a New Host
