@@ -3,6 +3,7 @@
 {
     imports = [
         ./systemConfig/fonts.nix
+        ./systemConfig/amd.nix
         ./systemConfig/audio.nix
         ./systemConfig/bluetooth.nix
         ./systemConfig/display.nix
