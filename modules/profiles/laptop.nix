@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ ... }:
 
 {
     mySystem = {
@@ -12,8 +12,4 @@
         development.godot = true;
         shell.zsh = true;
     };
-
-    environment.systemPackages = with pkgs; [
-        lm_sensors
-    ];
 }

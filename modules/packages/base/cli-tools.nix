@@ -9,7 +9,16 @@
 		s-tui
 		vhs
 		superfile
+		mesa-demos
+		vulkan-tools
+		clinfo
+		radeontop
+		glmark2
+		vkmark
+		stress-ng
 		pciutils
+		usbutils
+		lm_sensors
 		nvtopPackages.nvidia
 	];
 }
