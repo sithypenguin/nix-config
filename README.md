@@ -627,17 +627,18 @@ mySystem = {
 
 5. **Choose which features the new host enables** by using an existing profile or creating a new one:
    ```nix
-    # Reuse an existing profile:
-    imports = [
+   {
+     imports = [
        ./hardware-configuration.nix
        ../../modules/profiles/laptop.nix
-    ];
+     ];
 
-    # Or create a new profile that sets exactly the `mySystem.*` options you want.
-    # Example host-specific override:
-    mySystem.services.ollama.enable = true;
-   };
+     # Or add host-specific overrides on top of the reused profile.
+     mySystem.services.ollama.enable = true;
+   }
    ```
+
+   Ollama is implemented by [modules/systemConfig/ollama.nix](modules/systemConfig/ollama.nix), so enabling it for another host is just that one extra `mySystem.services.ollama.enable = true;` line in the host's selected profile or override file.
 
 6. **Test the config** without building:
    ```bash
@@ -1286,6 +1287,22 @@ The system uses custom NixOS options (`mySystem.*`) to control conditional behav
 - `mySystem.development.godot` - Enable the Godot package module from `pkgs-unstable`
 - `mySystem.services.ollama.enable` / `.port` - Enable and configure the Ollama NixOS service on selected hosts
 - `mySystem.gaming.enable`, `mySystem.development.enable` - Currently defined in options and set by profiles, but not consumed by other modules yet
+
+### Ollama Example
+
+Ollama is now implemented as a real system module in [modules/systemConfig/ollama.nix](modules/systemConfig/ollama.nix). The module:
+- enables the NixOS `services.ollama` service when `mySystem.services.ollama.enable = true;`
+- forwards `mySystem.services.ollama.port` to the service port
+- picks `pkgs.ollama-rocm` on AMD desktops, `pkgs.ollama-cuda` on NVIDIA desktops, and `pkgs.ollama` otherwise
+- keeps the service bound to `127.0.0.1` by default with the firewall closed
+
+To enable Ollama on one host only, add one line in that host's profile:
+
+```nix
+mySystem.services.ollama.enable = true;
+```
+
+To move it to another host later, add the same line in that other host's profile and remove it from the first one.
 
 ### Conditional Module Activation
 
