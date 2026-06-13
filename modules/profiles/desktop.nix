@@ -27,6 +27,7 @@
         packages.gui.design = true;
         packages.gui.tui = true;
         packages.gaming.steam = true;
+        packages.development.godot = true;
 
         # Desktop environments
         desktopEnvironments.plasma6 = true;
