@@ -221,232 +221,898 @@ Plus Hyprland-specific packages (waybar, mako, hyprlock, etc.)
 **modules/packages/gaming/**
 - [steam.nix](modules/packages/gaming/steam.nix) - Steam user package (enabled only for `sithy-top`; system Steam support is enabled via `mySystem.gaming.steam`)
 
-## Understanding Flakes & NixOS: Key Concepts
+## Key Concepts for Beginners
+
+If you're new to NixOS or Flakes, this section explains the fundamental concepts used in this repo. Familiarity with these will make the "Detailed Task Examples" section much clearer.
 
 ### What Is a Flake?
 
 A **Flake** is a standardized way to package a Nix project. Instead of ad-hoc scripts and implicit dependencies, a `flake.nix` file:
-- **Declares inputs** (what packages/versions you need from nixpkgs)
-- **Defines outputs** (what builds you produce: NixOS configs, Home Manager configs, etc.)
-- **Locks versions** (flake.lock pins exact commits so rebuilds are identical)
+- **Declares inputs** — What packages/versions you need from nixpkgs (think `package.json` dependencies)
+- **Defines outputs** — What builds you produce: NixOS configs, Home Manager configs, etc.
+- **Locks versions** — `flake.lock` pins exact commits so rebuilds are identical anywhere (like `yarn.lock`)
 
-Think of it like Cargo.lock for Rust or yarn.lock for Node.js—but for entire Linux system configurations.
+**Example flow**:
+```
+User runs: sudo nixos-rebuild switch --flake .#sithy-one
+         ↓
+Nix reads: flake.nix and flake.lock
+         ↓
+Finds output: nixosConfigurations.sithy-one
+         ↓
+Builds system with those exact pinned versions
+```
+
+**Why this matters**: Everyone who clones your repo and runs `sudo nixos-rebuild switch --flake .#sithy-one` gets *identical* results, down to package versions. No "it works on my machine" problems.
 
 ### The Module System
 
-In NixOS, everything is a **module**. A module is a function that returns a set of options and their values:
+In NixOS, everything is a **module**. A module is a function that returns a set of options and their values. Think of it like a config file format that's also executable code:
 
 ```nix
 { config, pkgs, lib, ... }:
 {
   options = {
-    # Define new options here
+    # Define new options here (what can be configured)
   };
   config = {
-    # Set options here
+    # Set options here (what the actual values are)
   };
 }
 ```
 
-When you import multiple modules, NixOS **merges them together** by key. For example:
+When you `import` multiple modules, NixOS **merges them together** automatically. For example:
 
 ```nix
-# Module A
+# Module A (modules/systemConfig/audio.nix)
 { services.pipewire.enable = true; }
 
-# Module B  
+# Module B (modules/systemConfig/display.nix)
 { services.pipewire.extra_settings = {...}; }
 
-# Result after merge
-{ services.pipewire = {
+# After NixOS merges them:
+{ 
+  services.pipewire = {
     enable = true;
     extra_settings = {...};
   };
 }
 ```
 
-**Key insight**: `imports` doesn't execute files; it **includes them in the merge**. The order of imports affects which values "win" when there are conflicts.
+**Key insight**: `imports` doesn't just load files; it **merges their configs together**. This is how multiple files can define different parts of the same service without conflicts.
 
-### Custom Options (The Pattern Used Here)
+### Custom Options: The `mySystem.*` Pattern
 
-This repo uses the **options pattern** to control conditional behavior:
+This repo uses the **options pattern** to control conditional behavior per-host. Instead of scattering `if-then-else` throughout modules, we:
 
-1. **Define** options in one file (`modules/systemConfig/host-options.nix`):
+1. **Define** options once (`modules/systemConfig/host-options.nix`):
    ```nix
    options.mySystem.laptop.enable = lib.mkOption {
      type = lib.types.bool;
      default = false;
+     description = "Enable laptop-specific configuration";
    };
    ```
 
-2. **Set** options per-host (`modules/profiles/laptop.nix`):
+2. **Set** option values per-host (`modules/profiles/laptop.nix`):
    ```nix
    config.mySystem.laptop.enable = true;
+   config.mySystem.laptop.environment = "hyprland";
    ```
 
-3. **Use** options conditionally throughout modules:
+3. **Use** options conditionally in any module:
    ```nix
    config = lib.mkIf config.mySystem.laptop.enable {
      services.pipewire.enable = true;
    };
    ```
 
-This pattern avoids **if-then-else logic scattered everywhere** and keeps config concerns organized by role.
+**Why this is better than ad-hoc conditionals**: All option definitions are in one place (host-options.nix), all values per-host are in one place (profiles/laptop.nix), and modules just reference them. If you need to add a new option, you add it to one file, not scattered throughout 5 files.
 
-### Why `lib.mkIf` and `lib.mkOption`?
+### Home Manager: User Packages & Dotfiles
 
-The `lib.mk*` functions are **merge-aware**:
-- `lib.mkOption` tells NixOS "this is a defined option that can be set"
-- `lib.mkIf` says "only include this config if this condition is true"
-- `lib.mkDefault` sets a default that can be overridden by other modules
+Home Manager is a **NixOS module** that builds user-level configuration. Unlike system packages (which require `sudo`), Home Manager manages:
+- User packages (Firefox, VSCode, CLI tools)
+- Dotfiles (symlinked from `~/.config/` to the Nix store)
+- User services and programs
 
-They exist because **merging is more complex than concatenation**. Without them, NixOS wouldn't know how to handle conflicting definitions.
+**How it integrates in this repo**:
+1. The `flake.nix` passes the system's `mySystem` config to Home Manager via `extraSpecialArgs`
+2. `users/sithy/home.nix` reads the hostname and `mySystem` options
+3. Home Manager evaluates which package categories to include (`enabledProfilesByHost`)
+4. All changes still go through `sudo nixos-rebuild` (because Home Manager is a NixOS module here)
 
-### Home Manager Integration
+**Key difference from stand-alone Home Manager**:
+- Typical Home Manager: Run `home-manager switch` separately from `nixos-rebuild`
+- This repo: Everything is one flake; run `sudo nixos-rebuild switch` and it handles both system + Home Manager
 
-Home Manager is a **separate NixOS module** that runs **after** the system is built. It:
-1. Reads the system's final config (passed via `extraSpecialArgs`)
-2. Builds user-level packages and dotfiles
-3. Symlinks them to `~/.config/`, `~/.local/`, etc.
-4. Runs home-manager activation scripts
+### Why `lib.mkIf`, `lib.mkOption`, and Friends?
 
-**Key point**: Home Manager sees `config.mySystem` because `flake.nix` passes it via `extraSpecialArgs`. This is how `enabledProfilesByHost` in `users/sithy/home.nix` can check the hostname.
+The `lib.mk*` functions are **merge-aware primitives**:
+- `lib.mkOption` declares "this option exists and can be configured"
+- `lib.mkIf condition { ... }` includes config only if `condition` is true
+- `lib.mkDefault value` sets a default that other modules can override
+- `lib.mkAfter` / `lib.mkBefore` control merge order for lists
 
-## Common Pitfalls & Misunderstandings
+They exist because **merging is more complex than just concatenating files**. Without them, NixOS wouldn't know:
+- What happens if two modules set the same option to different values?
+- Should a value be included or not?
+- In what order should list items appear?
 
-### "I edited a config file in `~/.config/` but it didn't persist after reboot"
+These functions answer those questions and make configs deterministic.
 
-**Problem**: Files in `~/.config/hypr/` and other Home Manager-managed config paths are **symlinks to the Nix store**, which is read-only. Editing them directly doesn't change the source.
+## Making Changes to Your Configuration
 
-**Solution**: Edit the source file in `dotfiles/hyprland/`, then rebuild the host through NixOS so Home Manager is re-applied:
+All changes flow through `nixos-rebuild`:
+
 ```bash
+# Make an edit to any config file (system, packages, or dotfiles)
+nano modules/systemConfig/audio.nix         # System service
+nano modules/packages/gui/base.nix          # User package
+nano dotfiles/hyprland/hypr/hyprland.conf  # Dotfile
+
+# Rebuild and apply changes
+sudo nixos-rebuild switch --flake .#sithy-one
+```
+
+**Key principle**: Whether you edit system config, user packages, or dotfiles, use the same rebuild command. This is because Home Manager is integrated as a NixOS module in this flake.
+
+### Editing Dotfiles Safely
+
+Important: Files in `~/.config/` and `~/.local/` are **read-only symlinks to the Nix store**. Editing them directly won't persist after reboot.
+
+```bash
+# ❌ Wrong: Edits won't persist
+nano ~/.config/hypr/hyprland.conf
+
+# ✅ Correct: Edit the source, then rebuild
 nano dotfiles/hyprland/hypr/hyprland.conf
 sudo nixos-rebuild switch --flake .#sithy-one
 ```
 
-### "I added a package to a module but it didn't install"
+## Detailed Task Examples
 
-**Check**:
-1. Is the package category in `enabledProfilesByHost` for your host?
-   - If not, add it: `"sithy-one" = [ "gui.base" /* add here */ ];`
-2. Did you run the right rebuild command?
-  - `sudo nixos-rebuild switch --flake .#sithy-one` for laptop changes
-  - `sudo nixos-rebuild switch --flake .#sithy-top` for desktop changes
-3. Is the package in nixpkgs?
-   - Check: `nix search nixpkgs your-package-name`
-   - If it doesn't exist, you may need to add custom derivations
+This section provides step-by-step examples for common tasks with copy-paste ready code.
 
-### "Everything rebuilds when I only changed a user package"
+### Task 1: Add a User Package (to One or All Hosts)
 
-**Problem**: You expected a standalone `home-manager switch --flake ...` workflow, but this flake only exposes `nixosConfigurations`.
+**Problem**: You want to install a GUI app or CLI tool for your user. Example: adding `htop` (system monitor).
 
-**Solution**: Use `nixos-rebuild` for repo-driven changes in this flake:
-- **System changes** (PipeWire, bootloader, fonts, services): `sudo nixos-rebuild switch --flake .#sithy-one`
-- **User packages only**: `sudo nixos-rebuild switch --flake .#sithy-one`
-- **Dotfiles only**: `sudo nixos-rebuild switch --flake .#sithy-one`
+**Solution**:
 
-This repository integrates Home Manager as a NixOS module, so user-level changes still flow through the host rebuild.
+1. **Find the right package module**. User packages are organized by purpose in `modules/packages/`:
+   - `base/core.nix` — Essential CLI (git, kitty, zsh, bat)
+   - `base/cli-tools.nix` — Utilities (htop, ncdu, btop, etc.)
+   - `base/dev-tools.nix` — Development (direnv, pkg-config)
+   - `gui/base.nix` — Core GUI apps (Firefox, VSCode, etc.)
+   - `gui/multimedia.nix` — Media (VLC, Spotify)
+   - `gui/office.nix` — Productivity (LibreOffice, Obsidian)
+   - `gui/comms.nix` — Communication (Discord, Telegram)
+   - `gui/design.nix` — Creative (Prusa Slicer)
+   - `network/*` — Network tools
 
-### "I want to use a package from nixpkgs-unstable instead of the stable channel"
+2. **Edit the module** and add your package:
 
-**Solution**: The `flake.nix` already imports both `nixpkgs` (stable, 26.05) and `nixpkgs-unstable`. Most Home Manager modules in this repo already receive `pkgs-unstable`, so you can use it directly:
+   **Before** (`modules/packages/base/cli-tools.nix`):
+   ```nix
+   { config, pkgs, ... }:
+   {
+     home.packages = with pkgs; [
+       ncdu
+       btop
+       bmon
+       duf
+     ];
+   }
+   ```
+
+   **After** (added `htop`):
+   ```nix
+   { config, pkgs, ... }:
+   {
+     home.packages = with pkgs; [
+       ncdu
+       btop
+       bmon
+       duf
+       htop  # ← Add here
+     ];
+   }
+   ```
+
+3. **Verify the package exists** in nixpkgs:
+   ```bash
+   nix search nixpkgs htop
+   ```
+
+4. **Rebuild** your host:
+   ```bash
+   sudo nixos-rebuild switch --flake .#sithy-one
+   ```
+
+5. **Verify** the package installed:
+   ```bash
+   which htop
+   ```
+
+**What can break**:
+- Package doesn't exist in nixpkgs — search first with `nix search nixpkgs`
+- Forgot to rebuild — packages only appear after rebuild, not immediately
+- Package is from unstable, but you're on stable — use `pkgs-unstable.package-name` (most modules already receive `pkgs-unstable`)
+- Module not included for your host — check `enabledProfilesByHost` in `users/sithy/home.nix`
+
+**For only one host**: Edit `users/sithy/home.nix` and add host-specific conditionals:
+```nix
+imports =
+  (map getProfile enabled)
+  # Host-specific packages
+  ++ (lib.optionals (hostname == "sithy-one") [
+    # Add a module here that only runs on sithy-one
+  ]);
+```
+
+---
+
+### Task 2: Add a System Package or Service (e.g., Enable Bluetooth)
+
+**Problem**: You want to enable a system-level service or driver that all users need. Example: enabling Bluetooth support.
+
+**Solution**:
+
+1. **Check if it already exists** in `modules/systemConfig/`:
+   ```bash
+   ls modules/systemConfig/
+   # Look for: audio.nix, bluetooth.nix, display.nix, networking.nix, etc.
+   ```
+
+2. **If the service module exists**, check if it's conditional:
+
+   **modules/systemConfig/bluetooth.nix**:
+   ```nix
+   { config, pkgs, lib, ... }:
+   {
+     config = lib.mkIf config.mySystem.hardware.bluetooth {
+       # Bluetooth configuration here
+     };
+   }
+   ```
+
+3. **Enable it in your host's profile**:
+
+   **Before** (`modules/profiles/laptop.nix`):
+   ```nix
+   { ... }:
+   {
+     mySystem = {
+       laptop.enable = true;
+       laptop.environment = "hyprland";
+       hardware.bluetooth = false;  # ← Currently disabled
+     };
+   }
+   ```
+
+   **After** (enabled):
+   ```nix
+   { ... }:
+   {
+     mySystem = {
+       laptop.enable = true;
+       laptop.environment = "hyprland";
+       hardware.bluetooth = true;  # ← Now enabled
+     };
+   }
+   ```
+
+4. **Rebuild**:
+   ```bash
+   sudo nixos-rebuild switch --flake .#sithy-one
+   ```
+
+5. **Verify**:
+   ```bash
+   # Check if Bluetooth service is running
+   systemctl status bluetooth
+   ```
+
+**If the service doesn't exist**, create a new module:
+
+1. **Create** `modules/systemConfig/my-service.nix`:
+   ```nix
+   { config, pkgs, lib, ... }:
+   {
+     config = lib.mkIf config.mySystem.myNewOption {
+       services.my-service = {
+         enable = true;
+         # Your configuration here
+       };
+     };
+   }
+   ```
+
+2. **Add the option** to `modules/systemConfig/host-options.nix`:
+   ```nix
+   options.mySystem.myNewOption = lib.mkEnableOption "my-service";
+   ```
+
+3. **Import the module** in `modules/default.nix`:
+   ```nix
+   imports = [
+     ./systemConfig/host-options.nix
+     ./systemConfig/audio.nix
+     ./systemConfig/bluetooth.nix
+     ./systemConfig/my-service.nix  # ← Add here
+   ];
+   ```
+
+4. **Enable in a profile** (`modules/profiles/laptop.nix`):
+   ```nix
+   mySystem.myNewOption = true;
+   ```
+
+5. **Rebuild**:
+   ```bash
+   sudo nixos-rebuild switch --flake .#sithy-one
+   ```
+
+**What can break**:
+- Forgot to add the option to `host-options.nix` — modules won't find `config.mySystem.myNewOption`
+- Forgot to import the module in `modules/default.nix` — the module won't run
+- Service dependency missing — some services depend on others (e.g., Bluetooth needs kernel support)
+- Invalid NixOS service option — check the NixOS manual: `man configuration.nix` or [NixOS search](https://search.nixos.org/options)
+
+---
+
+### Task 3: Add a New Host (e.g., sithy-three)
+
+**Problem**: You have another machine (laptop, desktop, server) and want to add it to this flake.
+
+**Solution**:
+
+1. **On the new machine, generate hardware config**:
+   ```bash
+   nixos-generate-config --show-hardware-config > hardware-configuration.nix
+   ```
+
+2. **Create the host directory** on your workstation:
+   ```bash
+   mkdir -p hosts/sithy-three
+   # Copy the hardware config you generated
+   cp hardware-configuration.nix hosts/sithy-three/
+   ```
+
+3. **Create** `hosts/sithy-three/default.nix`:
+   ```nix
+   { config, pkgs, ... }:
+   {
+     imports = [
+       ./hardware-configuration.nix
+       ../../modules/profiles/laptop.nix  # or desktop.nix
+     ];
+
+     networking.hostName = "sithy-three";
+   }
+   ```
+
+4. **Add to flake.nix** (inside `nixosConfigurations`):
+   ```nix
+   nixosConfigurations = {
+     sithy-one = mkHost { hostname = "sithy-one"; };
+     sithy-top = mkHost { hostname = "sithy-top"; };
+     sithy-three = mkHost { hostname = "sithy-three"; };  # ← Add here
+   };
+   ```
+
+5. **Add to enabledProfilesByHost** in `users/sithy/home.nix`:
+   ```nix
+   enabledProfilesByHost = {
+     "sithy-one" = [ "base.core" "base.cliTools" "base.devTools" "network.base" "network.wireless" "network.bluetooth" "gui.base" "gui.multimedia" "gui.office" "gui.comms" "gui.design" "gui.tui" ];
+     "sithy-top" = [ "base.core" "base.cliTools" "base.devTools" "network.base" "network.wireless" "network.bluetooth" "gui.base" "gui.multimedia" "gui.office" "gui.comms" "gui.design" "gui.tui" "gaming.steam" ];
+     "sithy-three" = [ "base.core" "base.cliTools" "base.devTools" "network.base" "network.wireless" "network.bluetooth" "gui.base" "gui.multimedia" "gui.office" "gui.comms" "gui.design" "gui.tui" ];  # ← Add here
+   };
+   ```
+
+6. **Test the config** without building:
+   ```bash
+   nix flake check --flake .
+   ```
+
+7. **On the new machine, clone and rebuild**:
+   ```bash
+   git clone https://github.com/sithypenguin/nix-config ~/Development/nix-dev/nix-config
+   cd ~/Development/nix-dev/nix-config
+   sudo nixos-rebuild switch --flake .#sithy-three
+   ```
+
+**What can break**:
+- Wrong `hardware-configuration.nix` — If you copy from another machine instead of generating on the target, hardware won't be detected correctly
+- Hostname mismatch — Ensure `networking.hostName` in `default.nix` matches the hostname in `flake.nix`
+- Missing enabledProfilesByHost entry — Home Manager will error if hostname isn't in the map
+- Profile mismatch — If you choose `laptop.nix` but it's a desktop, things won't be configured correctly
+
+---
+
+### Task 4: Remove or Disable a Package
+
+**Problem**: You installed a package but no longer want it. Example: removing `spotify` from multimedia packages.
+
+**Solution**:
+
+1. **Comment it out** instead of deleting (in case you need it later):
+
+   **Before** (`modules/packages/gui/multimedia.nix`):
+   ```nix
+   home.packages = with pkgs; [
+     vlc
+     spotify
+   ];
+   ```
+
+   **After** (commented):
+   ```nix
+   home.packages = with pkgs; [
+     vlc
+     # spotify  # ← Comment out
+   ];
+   ```
+
+2. **Rebuild**:
+   ```bash
+   sudo nixos-rebuild switch --flake .#sithy-one
+   ```
+
+3. **Verify it's gone**:
+   ```bash
+   which spotify
+   # Output: spotify not found
+   ```
+
+4. **Clean up unused packages from Nix store** (optional):
+   ```bash
+   nix-collect-garbage -d      # User garbage collection
+   sudo nix-collect-garbage -d  # System garbage collection
+   ```
+
+**Why comment instead of delete?**
+- Easier to re-enable later without remembering exactly where it was
+- Clearer git history (commented line shows intent; deleted line is forgotten)
+- Less risk of breaking list syntax
+
+**What can break**:
+- If you deleted instead of commented, you might accidentally break the list syntax (e.g., extra comma)
+- Garbage collection might take a while on first run (it's safe to Ctrl+C)
+
+---
+
+### Task 5: Modify a Dotfile Safely (e.g., Hyprland Config)
+
+**Problem**: You want to edit your Hyprland window manager config (keybinds, colors, etc.).
+
+**Solution**:
+
+1. **Never edit files directly in `~/.config/`** — they're read-only symlinks:
+   ```bash
+   # ❌ Don't do this:
+   nano ~/.config/hypr/hyprland.conf
+   # File is read-only; changes won't persist
+   ```
+
+2. **Edit the source in the repo**:
+   ```bash
+   nano dotfiles/hyprland/hypr/hyprland.conf
+   ```
+
+3. **Make your change** (example: add a keybind):
+
+   **Before**:
+   ```conf
+   # Example keybinds
+   bind = $mainMod, RETURN, exec, $terminal
+   bind = $mainMod, Q, killactive,
+   ```
+
+   **After** (added a new keybind):
+   ```conf
+   # Example keybinds
+   bind = $mainMod, RETURN, exec, $terminal
+   bind = $mainMod, Q, killactive,
+   bind = $mainMod, F11, togglefloating,  # ← Add here
+   ```
+
+4. **Rebuild to apply**:
+   ```bash
+   sudo nixos-rebuild switch --flake .#sithy-one
+   ```
+
+5. **Reload Hyprland** (without reboot):
+   ```bash
+   # Option 1: Reload via Hyprland command
+   hyprctl reload
+
+   # Option 2: Restart Hyprland (requires re-login or Ctrl+Alt+Backspace in many configs)
+   pkill -15 Hyprland
+   ```
+
+6. **Verify** the change applied:
+   ```bash
+   cat ~/.config/hypr/hyprland.conf | grep "togglefloating"
+   ```
+
+**What can break**:
+- Syntax error in the config file — Hyprland won't start if the conf is invalid
+  - Test syntax: `hyprctl reload` will tell you if there's an error
+- Editing the symlink directly — changes are lost after rebuild
+- Forgetting to rebuild — changes to `dotfiles/` aren't applied until rebuild
+
+**For other dotfiles** (Waybar, Mako, Rofi):
+- Waybar config: `dotfiles/hyprland/waybar/config.json`
+- Mako (notifications): `dotfiles/hyprland/mako/config`
+- Rofi (launcher): `dotfiles/hyprland/rofi/config.rasi`
+- Kitty (terminal): `dotfiles/hyprland/kitty/kitty.conf`
+
+They all follow the same pattern: edit in `dotfiles/`, then rebuild.
+
+---
+
+### Task 6: Disable a Feature Per-Host (e.g., Disable Gaming)
+
+**Problem**: You have gaming enabled on `sithy-top` but want to disable it without removing the config.
+
+**Solution**:
+
+1. **Find the option** you want to toggle. Check `modules/systemConfig/host-options.nix` to see available options:
+   ```bash
+   grep "mkEnableOption\|mkOption" modules/systemConfig/host-options.nix
+   ```
+
+   Available options include:
+   - `mySystem.gaming.enable` — Gaming support
+   - `mySystem.development.godot` — Godot engine
+   - `mySystem.hardware.bluetooth` — Bluetooth
+   - `mySystem.laptop.environment` — Window manager (hyprland or plasma6)
+
+2. **Edit your host's profile**:
+
+   **Before** (`modules/profiles/desktop.nix`):
+   ```nix
+   { ... }:
+   {
+     mySystem = {
+       laptop.enable = false;
+       desktop.enable = true;
+       desktop.environment = "plasma6";
+       gaming.enable = true;       # ← Currently enabled
+       gaming.steam = true;
+       development.enable = true;
+       hardware.bluetooth = true;
+       development.godot = true;
+       shell.zsh = true;
+     };
+   }
+   ```
+
+   **After** (gaming disabled):
+   ```nix
+   { ... }:
+   {
+     mySystem = {
+       laptop.enable = false;
+       desktop.enable = true;
+       desktop.environment = "plasma6";
+       gaming.enable = false;      # ← Now disabled
+       gaming.steam = false;
+       development.enable = true;
+       hardware.bluetooth = true;
+       development.godot = true;
+       shell.zsh = true;
+     };
+   }
+   ```
+
+3. **Rebuild**:
+   ```bash
+   sudo nixos-rebuild switch --flake .#sithy-top
+   ```
+
+4. **Verify** (example for gaming):
+   ```bash
+   which steam
+   # Output: steam not found (if gaming was the only Steam package)
+   ```
+
+**What can break**:
+- Option doesn't exist in `host-options.nix` — Check that file first
+- Typo in option name — NixOS won't complain; it will just ignore the misspelled option
+- Dependency between options — Some options enable others; disabling one might not disable all
+- Module still imported — If the module is imported unconditionally, disabling the option won't remove it
+
+---
+
+### Task 7: Switch to Unstable or Stable Packages
+
+**Problem**: You want a newer version of a package than what's in stable nixpkgs.
+
+**Solution**:
+
+The `flake.nix` already includes both channels:
+- `nixpkgs` — Stable (26.05)
+- `nixpkgs-unstable` — Latest rolling
+
+**Option 1: Single package from unstable**
+
+If the package module already receives `pkgs-unstable`, you can just reference it:
 
 ```nix
-# In any Home Manager module that already accepts pkgs-unstable
+# In modules/packages/base/core.nix
 { pkgs, pkgs-unstable, ... }:
 {
-  home.packages = [
-    pkgs-unstable.firefox  # unstable
-    pkgs.firefox  # stable
+  home.packages = with pkgs; [
+    git
+    kitty
+    # Use unstable for one package
+    pkgs-unstable.ghostty  # ← Use unstable version
   ];
 }
 ```
 
-### "Why can't I just use `environment.systemPackages` for everything?"
+**Option 2: Entire module from unstable**
 
-You can, but:
-- **System packages** require `sudo nixos-rebuild switch` (rebuilds kernel, services, etc.)
-- **Home Manager packages** stay logically separate in the repo, even though this flake applies them through `nixos-rebuild`
-- **Mixing them** makes it hard to know what broke or what needs what
+If you want most packages from unstable, change the input:
 
-This repo keeps system packages minimal (just what the system *needs*) and user packages maximal (everything else). It's cleaner and faster.
+**Before** (`flake.nix`):
+```nix
+inputs = {
+  nixpkgs.url = "github:nixos/nixpkgs/nixos-26.05";  # Stable
+  nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
+};
+```
+
+**After** (swap to unstable):
+```nix
+inputs = {
+  nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";  # ← Now unstable
+  nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-26.05";  # ← Swapped
+};
+```
+
+Then rebuild to update `flake.lock`:
+```bash
+nix flake update
+sudo nixos-rebuild switch --flake .#sithy-one
+```
+
+**Option 3: Check what version is available**
+
+Before switching, verify the package version you need exists:
+
+```bash
+# Check stable
+nix search nixpkgs firefox
+
+# Check unstable  
+nix search github:nixos/nixpkgs/nixos-unstable firefox
+```
+
+**What can break**:
+- Package doesn't exist in unstable — Check before switching
+- Unstable package is broken — Rolling channel sometimes has unfinished packages; revert with `git checkout flake.lock`
+- Incompatible with rest of system — Unlikely but possible; you can always revert
+- Forgot to run `nix flake update` — Inputs won't change without this command
+
+**How to revert**:
+```bash
+git checkout flake.lock
+sudo nixos-rebuild switch --flake .#sithy-one
+```
+
+---
+
+## Common Pitfalls & Debugging
+
+### "Everything broke when I edited systemConfig — how do I fix it?"
+
+**Problem**: You changed something in `modules/systemConfig/` and now the system won't boot or has errors.
+
+**Solution**:
+
+1. **Check for syntax errors** without rebuilding:
+   ```bash
+   nix flake check --flake .
+   ```
+   This evaluates the config without building; it's fast and shows validation errors.
+
+2. **Review your recent changes**:
+   ```bash
+   git diff modules/systemConfig/
+   git log -p modules/systemConfig/ | head -50
+   ```
+
+3. **Common mistakes in systemConfig**:
+   - **Missing import**: You created a new module but didn't add it to `modules/default.nix`
+     - Fix: Add `./systemConfig/my-service.nix` to the `imports` list in `modules/default.nix`
+   - **Module import order matters** for some configs: If module B depends on config set by module A, A must be imported first
+     - Fix: Reorder imports in `modules/default.nix` or use `lib.mkAfter` in the module
+   - **Option doesn't exist**: You reference `config.mySystem.foobar` but didn't define it in `host-options.nix`
+     - Fix: Add the option to `modules/systemConfig/host-options.nix`
+   - **Invalid NixOS option**: You set `services.pipewire.foobar = true` but that option doesn't exist in NixOS
+     - Fix: Check the NixOS manual: `man configuration.nix` or [NixOS search](https://search.nixos.org/options)
+
+4. **If rebuild fails**, check the error carefully:
+   ```bash
+   sudo nixos-rebuild switch --flake .#sithy-one
+   # Read the error message; it usually tells you which file and line
+   ```
+
+5. **Revert to last working state** if you're stuck:
+   ```bash
+   git diff HEAD~1  # See what changed
+   git revert HEAD  # Or checkout the file: git checkout modules/systemConfig/audio.nix
+   sudo nixos-rebuild switch --flake .#sithy-one
+   ```
+
+### "I added a package but it didn't install"
+
+**Checklist**:
+
+1. Is the package in nixpkgs?
+   ```bash
+   nix search nixpkgs your-package-name
+   ```
+
+2. Is the package's category enabled for your host?
+   - Check `users/sithy/home.nix` and look for `enabledProfilesByHost["sithy-one"]`
+   - Example: If you added to `gui/base.nix` but it's not in the list, add it
+
+3. Did you rebuild?
+   ```bash
+   sudo nixos-rebuild switch --flake .#sithy-one
+   ```
+
+4. Verify the package list:
+   ```bash
+   home-manager news  # Check for any Home Manager news
+   nix-env -q | grep your-package-name
+   ```
+
+### "I can't edit my dotfiles; changes keep reverting"
+
+**Problem**: Files in `~/.config/` are read-only symlinks to the Nix store.
+
+**Solution**:
+```bash
+# ❌ Wrong: Files are read-only
+nano ~/.config/hypr/hyprland.conf
+
+# ✅ Correct: Edit the source
+nano dotfiles/hyprland/hypr/hyprland.conf
+sudo nixos-rebuild switch --flake .#sithy-one
+```
+
+Verify the symlink:
+```bash
+ls -la ~/.config/hypr/hyprland.conf
+# Output: /home/sithy/.config/hypr/hyprland.conf -> /nix/store/xxx-hyprland.conf
+```
 
 ### "I cloned this on a new host and it doesn't work"
 
-**Check**:
-1. Is the `hardware-configuration.nix` correct?
-   - The installer generates this automatically; it detects your hardware
-   - Don't copy one from another machine
-2. Does the hostname match a host in flake.nix?
-   - You get `sithy-one` and `sithy-top` only
-   - To add a new host, see "Add a New Host" section below
-3. Is Nix with flakes available on the target system?
-   - Check: `nix --version` and `nixos-version`
-  - This flake is pinned to the `nixos-26.05` channel
+**Checklist**:
 
-### "Modules are 'evaluated' in a random order, how do I control when mine runs?"
+1. **Is the hardware config correct?**
+   ```bash
+   # On the NEW machine, generate it:
+   sudo nixos-generate-config --show-hardware-config > hardware-configuration.nix
+   # Then copy to hosts/your-hostname/
+   ```
+   Don't copy from another machine; it won't detect your hardware correctly.
 
-**Misconception**: Modules are not evaluated in random order; they're evaluated **once all imports are collected**. NixOS builds a giant set of all option definitions, then merges them.
+2. **Is the hostname in flake.nix?**
+   ```bash
+   grep "your-hostname = mkHost" flake.nix
+   ```
+   If not, follow "Add a New Host" in the task examples.
 
-**You control order with**:
-- `imports = [ ./other.nix ];` — include another module
-- `lib.mkIf condition { ... }` — conditionally set values
-- `lib.mkAfter` / `lib.mkBefore` — control merge priority for list options (rarely needed)
+3. **Is the hostname in enabledProfilesByHost?**
+   ```bash
+   grep "your-hostname" users/sithy/home.nix
+   ```
+   If not, add it.
 
-In practice, **order doesn't matter** because options are designed to be **order-independent** (idempotent).
+4. **Do you have a matching host file?**
+   ```bash
+   ls -la hosts/your-hostname/
+   # Should contain: default.nix and hardware-configuration.nix
+   ```
 
-### "How do I know if a module will break something?"
+### "Module evaluation order is confusing me"
 
-Test it:
-```bash
-nix flake check --flake .  # Evaluates without building
+**Misconception**: Modules are NOT evaluated in random order. Instead:
+1. NixOS **collects all modules** from the `imports` list
+2. It **merges all option definitions** together
+3. It **evaluates all config values** based on the merged options
+
+**Key insight**: Order doesn't matter for most configs because options are **idempotent** — merging the same config multiple times gives the same result.
+
+**When order DOES matter**:
+- If module B *depends on values set by module A*, import A first
+- For list options (like `environment.systemPackages`), use `lib.mkBefore` / `lib.mkAfter` to control order
+
+**Example**:
+```nix
+# audio.nix needs pipewire to be available
+# Make sure it's imported AFTER systemConfig/sysConfig.nix which sets the base
+
+imports = [
+  ./systemConfig/sysConfig.nix      # ← First
+  ./systemConfig/audio.nix          # ← Depends on above
+  ./systemConfig/networking.nix     # ← Independent
+];
 ```
 
-This checks if the config is syntactically valid and logically sound, without actually building the system. It's fast and safe.
+### "I'm seeing duplicate packages or conflicting options"
 
-## Making Changes
+**Problem**: You imported the same module twice or two modules define the same option.
 
-### System-Level Changes
+**Solution**:
+
+1. **Check for duplicate imports**:
+   ```bash
+   grep -r "import.*audio.nix" modules/
+   # Should only appear once in modules/default.nix
+   ```
+
+2. **Use `lib.mkIf` to avoid conflicts**:
+   ```nix
+   # Instead of multiple modules setting the same option:
+   config = lib.mkIf condition { services.pipewire.enable = true; };
+   ```
+
+3. **Check the error message** — it usually tells you which modules conflict
+
+### "My changes don't apply even after rebuild"
+
+**Checklist**:
+
+1. **Did the rebuild succeed?**
+   ```bash
+   echo $?  # 0 = success, non-zero = failed
+   sudo nixos-rebuild switch --flake .#sithy-one 2>&1 | tail -20
+   ```
+
+2. **Did you rebuild the correct host?**
+   ```bash
+   hostnamectl  # Check current hostname
+   sudo nixos-rebuild switch --flake .#<that-hostname>
+   ```
+
+3. **Is the change actually in the file?**
+   ```bash
+   cat dotfiles/hyprland/hypr/hyprland.conf | grep "your-change"
+   ```
+
+4. **For user packages**, verify they're enabled:
+   ```bash
+   home-manager news
+   # Check if Home Manager says it's applying your config
+   ```
+
+### "How do I safely test changes before applying?"
+
+**Option 1: Evaluate without building**
 ```bash
-# Edit system config
-nano modules/systemConfig/audio.nix
+nix flake check --flake .
+# Fast; only checks if config is valid
+```
 
-# Rebuild system
+**Option 2: Build in a temporary environment**
+```bash
+nix build --flake . --dry-run
+# Plans the build but doesn't actually build; shows what would change
+```
+
+**Option 3: Switch to a new generation (reversible)**
+```bash
 sudo nixos-rebuild switch --flake .#sithy-one
-```
-
-### Home Manager-Managed Changes
-```bash
-# Edit package list or user config
-nano modules/packages/gui/base.nix
-
-# Rebuild the host so the integrated Home Manager config is applied
-sudo nixos-rebuild switch --flake .#sithy-one
-```
-
-### Dotfile Changes
-```bash
-# Edit Hyprland config
-nano dotfiles/hyprland/hypr/hyprland.conf
-
-# Rebuild the host to re-apply Home Manager symlinks
-sudo nixos-rebuild switch --flake .#sithy-one
-```
-
-**Important:** Files in `~/.config/` are **read-only symlinks** to the Nix store. Always edit the source files in `dotfiles/hyprland/`.
-
-### Cleaning Up
-
-```bash
-# Delete old Home Manager generations (keep last 5 days, if the `home-manager` CLI is installed)
-home-manager expire-generations "-5 days"
-
-# Delete old system generations (keep last 3)
-sudo nix-env --delete-generations +3 --profile /nix/var/nix/profiles/system
-
-# Clean up Nix store
-nix-collect-garbage -d
-sudo nix-collect-garbage -d
+# If it breaks, boot into previous generation at GRUB menu
 ```
 
 ## Directory Structure
@@ -600,51 +1266,6 @@ config = lib.mkIf config.mySystem.laptop.enable {
   services.pipewire.enable = true;
 };
 ```
-
-## Customization Examples
-
-### Add a New Package to All Hosts
-Edit the category module (e.g., [modules/packages/gui/base.nix](modules/packages/gui/base.nix)):
-```nix
-home.packages = with pkgs; [
-  firefox
-  your-new-package  # ← Add here
-  ...
-];
-```
-
-### Add a Package to Only One Host
-Edit [users/sithy/home.nix](users/sithy/home.nix) and add a new host-specific category, or modify `enabledProfilesByHost` selectively.
-
-### Change Hyprland Config
-Edit [dotfiles/hyprland/hypr/hyprland.conf](dotfiles/hyprland/hypr/hyprland.conf), then:
-```bash
-sudo nixos-rebuild switch --flake .#sithy-one
-```
-
-### Add a New Host
-1. `mkdir -p hosts/your-hostname`
-2. Generate hardware config: `nixos-generate-config --show-hardware-config > hosts/your-hostname/hardware-configuration.nix`
-3. Create [hosts/your-hostname/default.nix](hosts/your-hostname/default.nix):
-   ```nix
-   { config, pkgs, ... }:
-   {
-     imports = [
-       ./hardware-configuration.nix
-       ../../modules/profiles/laptop.nix  # or desktop.nix
-     ];
-     networking.hostName = "your-hostname";
-   }
-   ```
-4. Add to [flake.nix](flake.nix): `your-hostname = mkHost { hostname = "your-hostname"; };`
-5. Add to [users/sithy/home.nix](users/sithy/home.nix) enabledProfilesByHost:
-   ```nix
-   "your-hostname" = [ "base.core" /* ... */ ];
-   ```
-6. Rebuild:
-   ```bash
-   sudo nixos-rebuild switch --flake .#your-hostname
-   ```
 
 ## Learning Resources & Study Path
 
