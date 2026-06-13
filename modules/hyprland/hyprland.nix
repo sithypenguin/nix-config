@@ -1,9 +1,9 @@
-{ config, pkgs, pkgs-unstable,... }:
+{ config, pkgs, pkgs-unstable, ... }:
 
 let 
     unstable = pkgs-unstable;
 in
-{ 
+{
     home.packages = with pkgs; [
         # Hyprland Doc Must-Haves
 
