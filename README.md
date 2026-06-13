@@ -196,7 +196,7 @@ mySystem = {
    packages.gaming.steam = true;
    packages.development.godot = true;
 
-   desktopEnvironments.hyprland = true;
+   environment = "hyprland";
 };
 ```
 That imports the base/network/gui package modules plus Hyprland-specific packages and dotfiles.
@@ -219,7 +219,7 @@ mySystem = {
    packages.gaming.steam = true;
    packages.development.godot = true;
 
-   desktopEnvironments.plasma6 = true;
+   environment = "plasma6";
 };
 ```
 
@@ -322,7 +322,7 @@ This repo uses the **options pattern** to control conditional behavior per-host.
 2. **Set** option values per-host (`modules/profiles/laptop.nix`):
    ```nix
    config.mySystem.laptop.enable = true;
-   config.mySystem.laptop.environment = "hyprland";
+   config.mySystem.environment = "hyprland";
    ```
 
 3. **Use** options conditionally in any module:
@@ -797,7 +797,7 @@ They all follow the same pattern: edit in `dotfiles/`, then rebuild.
    - `mySystem.gaming.enable` — Gaming support
    - `mySystem.development.godot` — Godot engine
    - `mySystem.hardware.bluetooth` — Bluetooth
-   - `mySystem.laptop.environment` — Window manager (hyprland or plasma6)
+   - `mySystem.environment` — Desktop environment (`"hyprland"`, `"plasma6"`, or `null` for headless)
 
 2. **Edit your host's profile**:
 
@@ -808,7 +808,7 @@ They all follow the same pattern: edit in `dotfiles/`, then rebuild.
      mySystem = {
        laptop.enable = false;
        desktop.enable = true;
-       desktop.environment = "plasma6";
+          environment = "plasma6";
        gaming.enable = true;       # ← Currently enabled
        gaming.steam = true;
        development.enable = true;
@@ -1275,12 +1275,10 @@ The system uses custom NixOS options (`mySystem.*`) to control conditional behav
 
 ### Current Options (modules/systemConfig/host-options.nix)
 - `mySystem.laptop.enable` - Enables laptop-targeted system modules
-- `mySystem.laptop.environment` - `"hyprland"` or `"plasma6"`
 - `mySystem.desktop.enable` - Enables desktop-targeted system modules
-- `mySystem.desktop.environment` - `"hyprland"` or `"plasma6"`
+- `mySystem.environment` - `"hyprland"`, `"plasma6"`, or `null` for headless hosts
 - `mySystem.desktop.nvidia` - Enables NVIDIA-related desktop settings
 - `mySystem.packages.*` - Enables Home Manager package categories such as `base.core`, `gui.base`, `gaming.steam`, and `development.godot`
-- `mySystem.desktopEnvironments.*` / `mySystem.laptopEnvironments.*` - Enables DE-specific user modules such as Hyprland
 - `mySystem.hardware.bluetooth` - Enable Bluetooth support
 - `mySystem.shell.zsh` - Enable Zsh as default shell
 - `mySystem.gaming.steam` - Enable Steam at system level
