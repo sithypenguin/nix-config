@@ -3,8 +3,7 @@
 {
     mySystem = {
         laptop.enable = true;
-        #laptop.environment = "plasma6";
-        laptop.environment = "hyprland";
+        environment = "hyprland";
         gaming.enable = true;
         gaming.steam = true;
         development.enable = true;
@@ -28,8 +27,5 @@
         packages.gaming.steam = true;
         packages.development.godot = true;
 
-        # Desktop environments
-        desktopEnvironments.hyprland = true;
-        laptopEnvironments.hyprland = true;
     };
 }

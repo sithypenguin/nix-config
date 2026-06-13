@@ -1,8 +1,10 @@
-{ config, pkgs, pkgs-unstable, ...}:
+{ config, pkgs, pkgs-unstable, lib, ...}:
 
 {
-    programs.hyprland = {
-        enable = true;
-        package = pkgs-unstable.hyprland;
+    config = lib.mkIf (config.mySystem.environment == "hyprland") {
+        programs.hyprland = {
+            enable = true;
+            package = pkgs-unstable.hyprland;
+        };
     };
 }

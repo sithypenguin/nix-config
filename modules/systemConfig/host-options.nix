@@ -5,22 +5,18 @@
         # ========== ROLE-LEVEL OPTIONS (System Configuration) ==========
         laptop = {
             enable = mkEnableOption "laptop-specific system configuration";
-            environment = mkOption {
-                type = types.enum [ "plasma6" "hyprland" ];
-                default = "plasma6";
-                description = "Laptop environment to use";
-            };
         };
 
         desktop = {
             enable = mkEnableOption "desktop-specific system configuration";
-            environment = mkOption {
-                type = types.enum [ "plasma6" "hyprland" ];
-                default = "plasma6";
-                description = "Desktop environment to use";
-            };
             amd = mkEnableOption "AMD GPU drivers";
             nvidia = mkEnableOption "Nvidia drivers";
+        };
+
+        environment = mkOption {
+            type = types.nullOr (types.enum [ "hyprland" "plasma6" ]);
+            default = "plasma6";
+            description = "Desktop environment selection. Use null explicitly for headless servers.";
         };
 
         # ========== SYSTEM-LEVEL FEATURES ==========
@@ -76,23 +72,10 @@
             };
         };
 
-        # ========== DESKTOP ENVIRONMENT PACKAGES ==========
-        # Control which DE-specific package modules are imported
-        # These are separate from role-based selection to allow mixing DEs on same host
-        desktopEnvironments = {
-            hyprland = mkEnableOption "Hyprland window manager packages and dotfiles";
-            plasma6 = mkEnableOption "Plasma6 desktop environment";
-        };
-
-        laptopEnvironments = {
-            hyprland = mkEnableOption "Hyprland window manager for laptop";
-            plasma6 = mkEnableOption "Plasma6 desktop environment for laptop";
-        };
-
-        # ========== SERVICES (Future-Proofing for Ollama, etc.) ==========
+        # ========== SERVICES ==========
         services = {
             ollama = {
-                enable = mkEnableOption "Ollama LLM service (placeholder for future)";
+                enable = mkEnableOption "Ollama LLM service";
                 port = mkOption {
                     type = types.int;
                     default = 11434;

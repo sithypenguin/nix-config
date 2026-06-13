@@ -51,9 +51,9 @@ let
     ++ (lib.optionals mySystem.packages.gaming.steam [ profiles.gaming.steam ])
     ++ (lib.optionals mySystem.packages.development.godot [ profiles.development.godot ]);
 
-  # Desktop environment-specific user modules (conditionally included based on mySystem options)
+  # Desktop environment-specific user modules (conditionally included by environment policy)
   envModules =
-    (lib.optionals mySystem.desktopEnvironments.hyprland [
+    (lib.optionals (mySystem.environment == "hyprland") [
       ../../modules/hyprland/hyprland.nix
       ../../modules/hyprland/hyprland-config.nix
     ]);

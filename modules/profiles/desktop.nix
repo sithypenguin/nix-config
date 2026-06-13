@@ -3,8 +3,7 @@
 {
     mySystem = {
         desktop.enable = true;
-        desktop.environment = "plasma6";
-        #desktop.environment = "hyprland";
+        environment = "plasma6";
         desktop.amd = true;
         desktop.nvidia = false;
         gaming.enable = true;
@@ -29,10 +28,5 @@
         packages.gaming.steam = true;
         packages.development.godot = true;
 
-        # Desktop environments
-        desktopEnvironments.plasma6 = true;
-
-        # Host-specific services
-        services.ollama.enable = true;
     };
 }
