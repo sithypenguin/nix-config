@@ -1,6 +1,7 @@
 # Home Manager configuration for user 'sithy'
 # This file manages user-specific packages and configurations
-{ lib, pkgs, pkgs-unstable, mySystem, hostname, ... }:
+# All feature selection is now policy-modular: profiles set mySystem options, this file imports based on those options
+{ lib, pkgs, pkgs-unstable, mySystem, ... }:
 
 let
   # Category modules grouped by purpose; each is a Home Manager module
@@ -32,28 +33,6 @@ let
     };
   };
 
-  # Host-driven profile selection; adjust lists per host as needed
-  enabledProfilesByHost = {
-    "sithy-one" = [
-      "base.core" "base.cliTools" "base.devTools"
-      "network.base" "network.wireless" "network.bluetooth"
-      "gui.base" "gui.multimedia" "gui.office" "gui.comms" "gui.design" "gui.tui"
-    ];
-    "sithy-top" = [
-      "base.core" "base.cliTools" "base.devTools"
-      "network.base" "network.wireless" "network.bluetooth"
-      "gui.base" "gui.multimedia" "gui.office" "gui.comms" "gui.design" "gui.tui"
-      "gaming.steam"
-    ];
-  };
-
-  # Resolve string path like "gui.base" → profiles.gui.base
-  getProfile = path:
-    let parts = lib.splitString "." path;
-    in lib.attrByPath parts (throw "Unknown profile path: ${path}") profiles;
-
-  enabled = lib.attrByPath [ hostname ] [] enabledProfilesByHost;
-
   # Build package module list based on mySystem options
   # This achieves policy modularity - each feature can be enabled/disabled by setting mySystem options in profiles
   packageModules =
@@ -81,10 +60,8 @@ let
 
 in {
   imports =
-    # Legacy: Host-chosen package categories (for backward compat, will be removed in Phase 5)
-    (map getProfile enabled)
     # Policy-based package modules (controlled by mySystem options set in profiles)
-    ++ packageModules
+    packageModules
     # DE-specific user modules
     ++ envModules;
 
