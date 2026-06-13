@@ -72,9 +72,9 @@ let
     ++ (lib.optionals mySystem.packages.gaming.steam [ profiles.gaming.steam ])
     ++ (lib.optionals mySystem.packages.development.godot [ profiles.development.godot ]);
 
-  # Desktop environment-specific user modules (Hyprland user apps + dotfiles only on sithy-one)
+  # Desktop environment-specific user modules (conditionally included based on mySystem options)
   envModules =
-    (lib.optionals (hostname == "sithy-one") [
+    (lib.optionals mySystem.desktopEnvironments.hyprland [
       ../../modules/hyprland/hyprland.nix
       ../../modules/hyprland/hyprland-config.nix
     ]);

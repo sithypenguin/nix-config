@@ -25,5 +25,9 @@
         packages.gui.comms = true;
         packages.gui.design = true;
         packages.gui.tui = true;
+
+        # Desktop environments
+        desktopEnvironments.hyprland = true;
+        laptopEnvironments.hyprland = true;
     };
 }

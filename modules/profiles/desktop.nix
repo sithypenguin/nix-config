@@ -27,5 +27,8 @@
         packages.gui.design = true;
         packages.gui.tui = true;
         packages.gaming.steam = true;
+
+        # Desktop environments
+        desktopEnvironments.plasma6 = true;
     };
 }
