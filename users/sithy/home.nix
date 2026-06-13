@@ -54,6 +54,24 @@ let
 
   enabled = lib.attrByPath [ hostname ] [] enabledProfilesByHost;
 
+  # Build package module list based on mySystem options
+  # This achieves policy modularity - each feature can be enabled/disabled by setting mySystem options in profiles
+  packageModules =
+    (lib.optionals mySystem.packages.base.core [ profiles.base.core ])
+    ++ (lib.optionals mySystem.packages.base.cliTools [ profiles.base.cliTools ])
+    ++ (lib.optionals mySystem.packages.base.devTools [ profiles.base.devTools ])
+    ++ (lib.optionals mySystem.packages.network.base [ profiles.network.base ])
+    ++ (lib.optionals mySystem.packages.network.wireless [ profiles.network.wireless ])
+    ++ (lib.optionals mySystem.packages.network.bluetooth [ profiles.network.bluetooth ])
+    ++ (lib.optionals mySystem.packages.gui.base [ profiles.gui.base ])
+    ++ (lib.optionals mySystem.packages.gui.multimedia [ profiles.gui.multimedia ])
+    ++ (lib.optionals mySystem.packages.gui.office [ profiles.gui.office ])
+    ++ (lib.optionals mySystem.packages.gui.comms [ profiles.gui.comms ])
+    ++ (lib.optionals mySystem.packages.gui.design [ profiles.gui.design ])
+    ++ (lib.optionals mySystem.packages.gui.tui [ profiles.gui.tui ])
+    ++ (lib.optionals mySystem.packages.gaming.steam [ profiles.gaming.steam ])
+    ++ (lib.optionals mySystem.packages.development.godot [ profiles.development.godot ]);
+
   # Desktop environment-specific user modules (Hyprland user apps + dotfiles only on sithy-one)
   envModules =
     (lib.optionals (hostname == "sithy-one") [
@@ -63,12 +81,10 @@ let
 
 in {
   imports =
-    # Host-chosen package categories
+    # Legacy: Host-chosen package categories (for backward compat, will be removed in Phase 5)
     (map getProfile enabled)
-    # Option-based package modules
-    ++ (lib.optionals mySystem.development.godot [
-      profiles.development.godot
-    ])
+    # Policy-based package modules (controlled by mySystem options set in profiles)
+    ++ packageModules
     # DE-specific user modules
     ++ envModules;
 
