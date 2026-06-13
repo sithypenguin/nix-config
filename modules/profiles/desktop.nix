@@ -31,5 +31,8 @@
 
         # Desktop environments
         desktopEnvironments.plasma6 = true;
+
+        # Host-specific services
+        services.ollama.enable = true;
     };
 }

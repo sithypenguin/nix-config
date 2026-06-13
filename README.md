@@ -1284,7 +1284,7 @@ The system uses custom NixOS options (`mySystem.*`) to control conditional behav
 - `mySystem.shell.zsh` - Enable Zsh as default shell
 - `mySystem.gaming.steam` - Enable Steam at system level
 - `mySystem.development.godot` - Enable the Godot package module from `pkgs-unstable`
-- `mySystem.services.ollama.enable` / `.port` - Reserved option surface for a future Ollama service module
+- `mySystem.services.ollama.enable` / `.port` - Enable and configure the Ollama NixOS service on selected hosts
 - `mySystem.gaming.enable`, `mySystem.development.enable` - Currently defined in options and set by profiles, but not consumed by other modules yet
 
 ### Conditional Module Activation
