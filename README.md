@@ -26,7 +26,7 @@ This repo demonstrates:
 - **Flakes**: Pinning versions, defining multi-host builds, passing args to modules
 - **Modules & merge order**: How `imports` works, how NixOS merges configs, why order matters
 - **Custom options pattern**: Define once (`host-options.nix`), set per-host (`profiles/`), use conditionally (`lib.mkIf`)
-- **Home Manager**: User packages separate from system, host-driven selection via `enabledProfilesByHost`
+- **Home Manager**: User packages separate from system, imported from `mySystem.packages.*` and DE options
 - **Dotfiles as code**: Hyprland configs version-controlled and symlinked declaratively
 - **Why reproducible**: No scripts, no manual setup, same result on any machine
 
@@ -34,9 +34,9 @@ This repo demonstrates:
 
 ### Key Principles
 
-1. **Host-Driven Configuration**: Each host specifies which NixOS modules and Home Manager package categories it needs via `hostname`
+1. **Policy-Driven Configuration**: Each host imports a role/profile, and that profile sets `mySystem.*` options that control both system and user features
 2. **Home Manager First**: User packages are managed via Home Manager; system-level packages reserved for drivers, services, and core system tools
-3. **Category-Based Packages**: Packages organized by purpose (base, network, gui, gaming) and imported per-host via `enabledProfilesByHost`
+3. **Category-Based Packages**: Packages are organized by purpose (base, network, gui, gaming) and imported when the corresponding `mySystem.packages.*` option is enabled
 4. **Declarative Dotfiles**: Hyprland configuration files in `dotfiles/hyprland/` are symlinked and managed by Home Manager
 
 ### Execution Flow (Mermaid Diagram)
@@ -65,14 +65,14 @@ graph TD
     J --> K["hardware-configuration.nix<br/>auto-detected hardware"]:::hostFiles
     J --> L["modules/profiles/laptop.nix<br/>sets mySystem.* options"]:::hostFiles
     
-    E --> M["Passes to Home Manager:<br/>hostname + mySystem config"]:::bridge
+   E --> M["Passes to Home Manager:<br/>mySystem config"]:::bridge
     M --> N["users/sithy/home.nix<br/>user-level packages & dotfiles"]:::hmConfig
-    N --> O["getProfile function<br/>looks up enabled categories"]:::hmConfig
-    O -->|reads enabledProfilesByHost| P["'sithy-one' maps to<br/>base, network, gui, hyprland"]:::hmConfig
-    P --> Q["modules/packages/base/*<br/>core, cli-tools, dev-tools"]:::packages
-    P --> R["modules/packages/network/*<br/>wireless, bluetooth"]:::packages
-    P --> S["modules/packages/gui/*<br/>base, multimedia, office, etc."]:::packages
-    P --> T["modules/hyprland/*<br/>waybar, mako, hyprlock, etc."]:::packages
+   N --> O["Reads enabled `mySystem.*` options<br/>from the active profile"]:::hmConfig
+   O --> P["Option-driven imports:<br/>packages + DE modules"]:::hmConfig
+   P --> Q["modules/packages/base/*<br/>core, cli-tools, dev-tools"]:::packages
+   P --> R["modules/packages/network/*<br/>wireless, bluetooth"]:::packages
+   P --> S["modules/packages/gui/*<br/>base, multimedia, office, etc."]:::packages
+   P --> T["modules/hyprland/*<br/>waybar, mako, hyprlock, etc."]:::packages
     
     T --> U["modules/hyprland/hyprland-config.nix"]:::dotfiles
     U -->|symlinks| V["dotfiles/hyprland/hypr/*<br/>hyprland.conf, hyprpaper.conf, etc."]:::dotfiles
@@ -139,7 +139,7 @@ sudo nixos-rebuild switch --flake .#sithy-one
     │  │
     │  └─ Home Manager Integration
     │     └─ users/sithy/home.nix
-    │        ├─ Host-driven package selection via enabledProfilesByHost
+   │        ├─ Option-driven package selection via mySystem.packages.*
     │        ├─ modules/packages/base/*
     │        ├─ modules/packages/network/*
     │        ├─ modules/packages/gui/*
@@ -174,28 +174,53 @@ This split ensures:
 - Clear separation of concerns
 - Each user can have different package sets
 
-### Host-Driven Package Selection
+### Policy-Driven Package Selection
 
-Each host in [users/sithy/home.nix](users/sithy/home.nix) specifies which package categories to import via the `enabledProfilesByHost` map:
+Profiles enable package categories and desktop-environment modules by setting `mySystem.*` options. [users/sithy/home.nix](users/sithy/home.nix) imports package modules when those options are true.
 
 #### sithy-one (Hyprland)
 ```nix
-"sithy-one" = [
-  "base.core" "base.cliTools" "base.devTools"
-  "network.base" "network.wireless" "network.bluetooth"
-  "gui.base" "gui.multimedia" "gui.office" "gui.comms" "gui.design" "gui.tui"
-];
+mySystem = {
+   packages.base.core = true;
+   packages.base.cliTools = true;
+   packages.base.devTools = true;
+   packages.network.base = true;
+   packages.network.wireless = true;
+   packages.network.bluetooth = true;
+   packages.gui.base = true;
+   packages.gui.multimedia = true;
+   packages.gui.office = true;
+   packages.gui.comms = true;
+   packages.gui.design = true;
+   packages.gui.tui = true;
+   packages.gaming.steam = true;
+   packages.development.godot = true;
+
+   desktopEnvironments.hyprland = true;
+};
 ```
-Plus Hyprland-specific packages (waybar, mako, hyprlock, etc.)
+That imports the base/network/gui package modules plus Hyprland-specific packages and dotfiles.
 
 #### sithy-top (Plasma6)
 ```nix
-"sithy-top" = [
-  "base.core" "base.cliTools" "base.devTools"
-  "network.base" "network.wireless" "network.bluetooth"
-  "gui.base" "gui.multimedia" "gui.office" "gui.comms" "gui.design" "gui.tui"
-  "gaming.steam"
-];
+mySystem = {
+   packages.base.core = true;
+   packages.base.cliTools = true;
+   packages.base.devTools = true;
+   packages.network.base = true;
+   packages.network.wireless = true;
+   packages.network.bluetooth = true;
+   packages.gui.base = true;
+   packages.gui.multimedia = true;
+   packages.gui.office = true;
+   packages.gui.comms = true;
+   packages.gui.design = true;
+   packages.gui.tui = true;
+   packages.gaming.steam = true;
+   packages.development.godot = true;
+
+   desktopEnvironments.plasma6 = true;
+};
 ```
 
 ### Package Categories
@@ -318,8 +343,8 @@ Home Manager is a **NixOS module** that builds user-level configuration. Unlike 
 
 **How it integrates in this repo**:
 1. The `flake.nix` passes the system's `mySystem` config to Home Manager via `extraSpecialArgs`
-2. `users/sithy/home.nix` reads the hostname and `mySystem` options
-3. Home Manager evaluates which package categories to include (`enabledProfilesByHost`)
+2. `users/sithy/home.nix` reads `mySystem` options from the active profile
+3. Home Manager conditionally imports package groups and Hyprland modules from those options
 4. All changes still go through `sudo nixos-rebuild` (because Home Manager is a NixOS module here)
 
 **Key difference from stand-alone Home Manager**:
@@ -439,16 +464,14 @@ This section provides step-by-step examples for common tasks with copy-paste rea
 - Package doesn't exist in nixpkgs — search first with `nix search nixpkgs`
 - Forgot to rebuild — packages only appear after rebuild, not immediately
 - Package is from unstable, but you're on stable — use `pkgs-unstable.package-name` (most modules already receive `pkgs-unstable`)
-- Module not included for your host — check `enabledProfilesByHost` in `users/sithy/home.nix`
+- The package category is not enabled in your profile — check the relevant `mySystem.packages.*` option in `modules/profiles/`
 
-**For only one host**: Edit `users/sithy/home.nix` and add host-specific conditionals:
+**For only one host**: Enable the package category only in that host's profile:
 ```nix
-imports =
-  (map getProfile enabled)
-  # Host-specific packages
-  ++ (lib.optionals (hostname == "sithy-one") [
-    # Add a module here that only runs on sithy-one
-  ]);
+mySystem = {
+   packages.gui.base = true;
+   # Leave the same option false on other profiles
+};
 ```
 
 ---
@@ -602,12 +625,17 @@ imports =
    };
    ```
 
-5. **Add to enabledProfilesByHost** in `users/sithy/home.nix`:
+5. **Choose which features the new host enables** by using an existing profile or creating a new one:
    ```nix
-   enabledProfilesByHost = {
-     "sithy-one" = [ "base.core" "base.cliTools" "base.devTools" "network.base" "network.wireless" "network.bluetooth" "gui.base" "gui.multimedia" "gui.office" "gui.comms" "gui.design" "gui.tui" ];
-     "sithy-top" = [ "base.core" "base.cliTools" "base.devTools" "network.base" "network.wireless" "network.bluetooth" "gui.base" "gui.multimedia" "gui.office" "gui.comms" "gui.design" "gui.tui" "gaming.steam" ];
-     "sithy-three" = [ "base.core" "base.cliTools" "base.devTools" "network.base" "network.wireless" "network.bluetooth" "gui.base" "gui.multimedia" "gui.office" "gui.comms" "gui.design" "gui.tui" ];  # ← Add here
+    # Reuse an existing profile:
+    imports = [
+       ./hardware-configuration.nix
+       ../../modules/profiles/laptop.nix
+    ];
+
+    # Or create a new profile that sets exactly the `mySystem.*` options you want.
+    # Example host-specific override:
+    mySystem.services.ollama.enable = true;
    };
    ```
 
@@ -626,8 +654,8 @@ imports =
 **What can break**:
 - Wrong `hardware-configuration.nix` — If you copy from another machine instead of generating on the target, hardware won't be detected correctly
 - Hostname mismatch — Ensure `networking.hostName` in `default.nix` matches the hostname in `flake.nix`
-- Missing enabledProfilesByHost entry — Home Manager will error if hostname isn't in the map
 - Profile mismatch — If you choose `laptop.nix` but it's a desktop, things won't be configured correctly
+- Missing profile options — If a feature is absent, check that the relevant `mySystem.*` option is set in the selected profile
 
 ---
 
@@ -959,8 +987,8 @@ sudo nixos-rebuild switch --flake .#sithy-one
    ```
 
 2. Is the package's category enabled for your host?
-   - Check `users/sithy/home.nix` and look for `enabledProfilesByHost["sithy-one"]`
-   - Example: If you added to `gui/base.nix` but it's not in the list, add it
+   - Check the active profile in `modules/profiles/`
+   - Example: If you added to `gui/base.nix`, confirm `mySystem.packages.gui.base = true;`
 
 3. Did you rebuild?
    ```bash
@@ -1011,11 +1039,11 @@ ls -la ~/.config/hypr/hyprland.conf
    ```
    If not, follow "Add a New Host" in the task examples.
 
-3. **Is the hostname in enabledProfilesByHost?**
+3. **Does the host import the correct profile?**
    ```bash
-   grep "your-hostname" users/sithy/home.nix
+   grep "modules/profiles" hosts/your-hostname/default.nix
    ```
-   If not, add it.
+   If not, import the right profile or create a new one.
 
 4. **Do you have a matching host file?**
    ```bash
@@ -1218,8 +1246,8 @@ nix-config/
 │   ├── users.nix                # System user definitions
 │   └── sithy/
 │       └── home.nix             # Home Manager user config
-│           ├── Defines enabledProfilesByHost
-│           └── Imports category modules based on hostname
+│           ├── Reads mySystem package/DE options
+│           └── Imports category modules based on those options
 │
 └── docs/                        # Learning examples (not used by configuration)
     ├── EXECUTION-FLOW.md
@@ -1250,10 +1278,13 @@ The system uses custom NixOS options (`mySystem.*`) to control conditional behav
 - `mySystem.desktop.enable` - Enables desktop-targeted system modules
 - `mySystem.desktop.environment` - `"hyprland"` or `"plasma6"`
 - `mySystem.desktop.nvidia` - Enables NVIDIA-related desktop settings
+- `mySystem.packages.*` - Enables Home Manager package categories such as `base.core`, `gui.base`, `gaming.steam`, and `development.godot`
+- `mySystem.desktopEnvironments.*` / `mySystem.laptopEnvironments.*` - Enables DE-specific user modules such as Hyprland
 - `mySystem.hardware.bluetooth` - Enable Bluetooth support
 - `mySystem.shell.zsh` - Enable Zsh as default shell
 - `mySystem.gaming.steam` - Enable Steam at system level
 - `mySystem.development.godot` - Enable the Godot package module from `pkgs-unstable`
+- `mySystem.services.ollama.enable` / `.port` - Reserved option surface for a future Ollama service module
 - `mySystem.gaming.enable`, `mySystem.development.enable` - Currently defined in options and set by profiles, but not consumed by other modules yet
 
 ### Conditional Module Activation
@@ -1298,7 +1329,7 @@ Read the files in this order (they build conceptually):
 3. [modules/profiles/laptop.nix](modules/profiles/laptop.nix) and [desktop.nix](modules/profiles/desktop.nix) — Where `mySystem.*` are set per-role
 4. [configuration.nix](configuration.nix) — Top-level; imports all system modules
 5. [hosts/sithy-one/default.nix](hosts/sithy-one/default.nix) — Host-specific: hardware + profile
-6. [users/sithy/home.nix](users/sithy/home.nix) — Home Manager; defines `enabledProfilesByHost` and `getProfile` function
+6. [users/sithy/home.nix](users/sithy/home.nix) — Home Manager; imports package and DE modules from enabled `mySystem.*` options
 
 ### External Documentation
 
