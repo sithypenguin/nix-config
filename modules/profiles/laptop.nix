@@ -4,7 +4,6 @@
     mySystem = {
         laptop.enable = true;
         #laptop.environment = "plasma6";
-        laptop.environment = "hyprland";
         cursor.enable = true;
         environment = "hyprland";
         gaming.enable = true;
