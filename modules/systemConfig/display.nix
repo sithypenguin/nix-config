@@ -3,19 +3,13 @@
 { config, pkgs, lib, ... }:
 
 {
-    config = lib.mkIf (config.mySystem.laptop.enable || config.mySystem.desktop.enable) {
+    config = lib.mkIf (config.mySystem.environment != null) (lib.mkMerge [
+      {
         # X11 windowing system
         services.xserver.enable = true;
-        
-        # Display and desktop environment - use laptop environment if laptop is enabled
-        services.displayManager.sddm.enable = lib.mkIf 
-            ((config.mySystem.laptop.enable && config.mySystem.laptop.environment == "plasma6") ||
-             (!config.mySystem.laptop.enable && config.mySystem.desktop.environment == "plasma6") ||
-             (config.mySystem.laptop.enable && config.mySystem.laptop.environment == "hyprland")) true;
-             
-        services.desktopManager.plasma6.enable = lib.mkIf 
-            ((config.mySystem.laptop.enable && config.mySystem.laptop.environment == "plasma6") ||
-             (!config.mySystem.laptop.enable && config.mySystem.desktop.environment == "plasma6")) true;
+
+        # SDDM is used for both Plasma and Hyprland sessions.
+        services.displayManager.sddm.enable = true;
 
         # XDG Desktop Portal configuration
         /*xdg.portal = {
@@ -32,5 +26,12 @@
 
         # Enable touchpad support for laptops
         services.libinput.enable = lib.mkIf config.mySystem.laptop.enable true;
-    };
+            }
+            (lib.mkIf (config.mySystem.environment == "plasma6") {
+                services.desktopManager.plasma6.enable = true;
+            })
+            (lib.mkIf (config.mySystem.environment == "hyprland") {
+                services.desktopManager.plasma6.enable = false;
+            })
+        ]);
 }

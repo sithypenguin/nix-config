@@ -10,6 +10,7 @@
         ./systemConfig/host-options.nix
         ./systemConfig/networking.nix
         ./systemConfig/nvidia.nix
+        ./systemConfig/ollama.nix
         ./systemConfig/sysConfig.nix
         ./systemConfig/zsh.nix
         ./systemConfig/hyprland.nix
