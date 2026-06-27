@@ -1319,8 +1319,8 @@ config = lib.mkIf config.mySystem.laptop.enable {
 
 Start here if this is your first exposure to declarative Linux configs:
 
-1. **Understand the philosophy**: Read [What is Nix?](https://www.tweag.io/blog/2022-07-04-what-is-nix/) (5 min)
-2. **See how modules work**: [NixOS Modules Explained](https://nixos.wiki/wiki/Modules) (10 min)
+1. **Understand the philosophy**: Read [What is Nix?](https://nixos.org/guides/how-nix-works/) (5 min)
+2. **See how modules work**: [NixOS Modules Explained](https://nixos.wiki/wiki/NixOS_modules) (10 min)
 3. **Learn about Flakes**: [Flakes Introduction](https://nixos.wiki/wiki/Flakes) (15 min)
 4. **Try the examples**: Work through `docs/examples/01-minimal-single-host/` → `04-multi-host/` in order
 
