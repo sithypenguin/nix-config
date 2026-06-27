@@ -72,6 +72,21 @@ in {
   home.username = "sithy";
   home.homeDirectory = "/home/sithy";
 
+  home.pointerCursor = lib.mkIf mySystem.cursor.enable {
+    package = mySystem.cursor.package;
+    name = mySystem.cursor.name;
+    size = mySystem.cursor.size;
+    gtk.enable = true;
+    x11.enable = true;
+  };
+
+  home.sessionVariables = lib.mkIf mySystem.cursor.enable {
+    XCURSOR_THEME = mySystem.cursor.name;
+    XCURSOR_SIZE = toString mySystem.cursor.size;
+    HYPRCURSOR_THEME = mySystem.cursor.name;
+    HYPRCURSOR_SIZE = toString mySystem.cursor.size;
+  };
+
   # Home Manager version - should match your NixOS version
   home.stateVersion = "25.05";
 

@@ -1,4 +1,4 @@
-{ lib, ... }:
+{ lib, pkgs, ... }:
 
 {
     options.mySystem = with lib; {
@@ -81,6 +81,25 @@
                     default = 11434;
                     description = "Port for Ollama service";
                 };
+            };
+        };
+
+        cursor = {
+            enable = mkEnableOption "cursor theme setup";
+            package = mkOption {
+                type = types.package;
+                default = pkgs.bibata-cursors;
+                description = "Cursor theme package";
+            };
+            name = mkOption {
+                type = types.str;
+                default = "Bibata-Modern-Classic";
+                description = "Cursor theme name for GTK/Hyprland";
+            };
+            size = mkOption {
+                type = types.int;
+                default = 24;
+                description = "Cursor size";
             };
         };
 
