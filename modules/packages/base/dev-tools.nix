@@ -3,5 +3,6 @@
 	home.packages = with pkgs; [
 		direnv
 		pkg-config
+		pkgs-unstable.open-webui
 	];
 }

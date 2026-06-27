@@ -12,5 +12,7 @@
     hardware.amdgpu.initrd.enable = true;
 
     hardware.firmware = [ pkgs.linux-firmware ];
+
+    environment.systemPackages = [pkgs.amdgpu_top];
   };
 }
