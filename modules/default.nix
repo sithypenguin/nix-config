@@ -7,6 +7,7 @@
         ./systemConfig/audio.nix
         ./systemConfig/bluetooth.nix
         ./systemConfig/display.nix
+        ./systemConfig/docker.nix
         ./systemConfig/host-options.nix
         ./systemConfig/networking.nix
         ./systemConfig/nvidia.nix
