@@ -9,5 +9,6 @@
     easyeffects
     chromium
     microsoft-edge
+    nomachine-client
   ];
 }
