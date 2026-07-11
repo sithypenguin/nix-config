@@ -12,7 +12,8 @@
         development.enable = true;
         development.godot = true;
         shell.zsh = true;
-        desktop.docker = true;
+        development.docker = true;
+        networking.tailscale = true;
 
         # Package categories for this profile
         packages.base.core = true;

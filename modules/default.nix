@@ -13,6 +13,7 @@
         ./systemConfig/nvidia.nix
         ./systemConfig/ollama.nix
         ./systemConfig/sysConfig.nix
+        ./systemConfig/tailscale.nix
         ./systemConfig/zsh.nix
         ./systemConfig/hyprland.nix
         ./hyprland/cachix.nix

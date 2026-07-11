@@ -28,6 +28,7 @@
         development = {
             enable = mkEnableOption "development tools";
             godot = mkEnableOption "Godot from unstable nixpkgs";
+            docker = mkEnableOption "Enable docker engine";
         };
 
         hardware = {
@@ -36,6 +37,10 @@
 
         shell = {
             zsh = mkEnableOption "Zsh shell";
+        };
+
+        networking = {
+            tailscale =mkEnableOption "Tailscale client";
         };
 
         # ========== USER-LEVEL PACKAGE CATEGORIES ==========
