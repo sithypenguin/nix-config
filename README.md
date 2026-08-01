@@ -228,7 +228,7 @@ mySystem = {
 **modules/packages/base/**
 - [core.nix](modules/packages/base/core.nix) - Essential CLI: git, bat, zellij, fastfetch, kitty, zsh, ghostty
 - [cli-tools.nix](modules/packages/base/cli-tools.nix) - Utilities: ncdu, btop, bmon, duf, isd, s-tui, vhs, superfile, pciutils, nvtop
-- [dev-tools.nix](modules/packages/base/dev-tools.nix) - Development: direnv, pkg-config
+- [dev-tools.nix](modules/packages/base/dev-tools.nix) - Development: direnv, pkg-config, .NET SDK 10.0
 
 **modules/packages/network/**
 - [base.nix](modules/packages/network/base.nix) - Diagnostics: clinfo, dnsutils, nettools

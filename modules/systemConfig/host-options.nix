@@ -29,6 +29,7 @@
             enable = mkEnableOption "development tools";
             godot = mkEnableOption "Godot from unstable nixpkgs";
             docker = mkEnableOption "Enable docker engine";
+            nixLd = mkEnableOption "nix-ld dynamic linker shim for unpatched binaries";
         };
 
         hardware = {
@@ -50,7 +51,7 @@
             base = {
                 core = mkEnableOption "base core packages (git, kitty, zsh, bat)";
                 cliTools = mkEnableOption "CLI utility packages (htop, ncdu, btop)";
-                devTools = mkEnableOption "development tools (direnv, pkg-config)";
+                devTools = mkEnableOption "development tools (direnv, pkg-config, .NET SDK 10.0)";
             };
 
             network = {
