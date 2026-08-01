@@ -11,6 +11,7 @@
         gaming.steam = true;
         development.enable = true;
         development.godot = true;
+        development.nixLd = true;
         shell.zsh = true;
         development.docker = true;
         networking.tailscale = true;

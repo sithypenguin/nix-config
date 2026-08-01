@@ -9,6 +9,7 @@
         ./systemConfig/display.nix
         ./systemConfig/docker.nix
         ./systemConfig/host-options.nix
+        ./systemConfig/nix-ld.nix
         ./systemConfig/networking.nix
         ./systemConfig/nvidia.nix
         ./systemConfig/ollama.nix

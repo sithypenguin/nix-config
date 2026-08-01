@@ -11,6 +11,7 @@
         development.enable = true;
         hardware.bluetooth = true;
         development.godot = true;
+        development.nixLd = true;
         shell.zsh = true;
 
         # Package categories for this profile
