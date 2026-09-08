@@ -27,6 +27,7 @@
         packages.gui.comms = true;
         packages.gui.design = true;
         packages.gui.tui = true;
+        packages.gui.nomachine = false;
         packages.gaming.steam = true;
         packages.development.godot = true;
 

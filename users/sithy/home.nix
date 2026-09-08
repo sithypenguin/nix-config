@@ -24,6 +24,7 @@ let
       comms        = import ../../modules/packages/gui/comms.nix;
       design       = import ../../modules/packages/gui/design.nix;
       tui          = import ../../modules/packages/gui/tui.nix;
+      nomachine    = import ../../modules/packages/gui/nomachine.nix;
     };
     gaming = {
       steam       = import ../../modules/packages/gaming/steam.nix;
@@ -48,6 +49,7 @@ let
     ++ (lib.optionals mySystem.packages.gui.comms [ profiles.gui.comms ])
     ++ (lib.optionals mySystem.packages.gui.design [ profiles.gui.design ])
     ++ (lib.optionals mySystem.packages.gui.tui [ profiles.gui.tui ])
+    ++ (lib.optionals mySystem.packages.gui.nomachine [ profiles.gui.nomachine ])
     ++ (lib.optionals mySystem.packages.gaming.steam [ profiles.gaming.steam ])
     ++ (lib.optionals mySystem.packages.development.godot [ profiles.development.godot ]);
 

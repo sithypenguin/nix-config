@@ -67,6 +67,7 @@
                 comms = mkEnableOption "communication apps (discord, telegram)";
                 design = mkEnableOption "design software (prusa-slicer)";
                 tui = mkEnableOption "terminal UI apps (ncspot)";
+                nomachine = mkEnableOption "NoMachine client package";
             };
 
             gaming = {
