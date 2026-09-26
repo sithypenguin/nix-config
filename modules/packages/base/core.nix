@@ -7,6 +7,7 @@
         fastfetch
         kitty
         zsh
+        ripgrep
     ] ++ [
         pkgs-unstable.ghostty
     ];
