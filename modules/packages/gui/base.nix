@@ -3,7 +3,7 @@
 {
   home.packages = with pkgs; [
     pkgs-unstable.vscode
-    #bitwarden-desktop
+    bitwarden-desktop
     firefox
     networkmanagerapplet
     easyeffects
