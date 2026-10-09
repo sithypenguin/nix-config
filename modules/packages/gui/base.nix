@@ -3,6 +3,7 @@
 {
   home.packages = with pkgs; [
     pkgs-unstable.vscode
+    appimage-run
     bitwarden-desktop
     firefox
     networkmanagerapplet
