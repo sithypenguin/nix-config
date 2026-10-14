@@ -3,5 +3,6 @@
 {
   home.packages = with pkgs; [
     pkgs-unstable.prusa-slicer
+    pkgs-unstable.freecad
   ];
 }
