@@ -48,7 +48,6 @@
         development = {
             enable = mkEnableOption "development tools";
             godot = mkEnableOption "Godot from unstable nixpkgs";
-            docker = mkEnableOption "Enable docker engine";
             nixLd = mkEnableOption "nix-ld dynamic linker shim for unpatched binaries";
         };
 
@@ -88,6 +87,7 @@
                 design = mkEnableOption "design software (prusa-slicer)";
                 tui = mkEnableOption "terminal UI apps (ncspot)";
                 nomachine = mkEnableOption "NoMachine client package";
+                podmanDesktop = mkEnableOption "Podman Desktop GUI client";
             };
 
             gaming = {
@@ -123,31 +123,13 @@
                     example = "sithy";
                     description = "User that runs rootless Podman. Gets subuid/subgid ranges, lingering and the user Podman socket. Required when rootless = true.";
                 };
-                dockerCompat = mkOption {
-                    type = types.bool;
-                    default = false;
-                    description = "Provide a `docker` CLI alias for Podman. Conflicts with the Docker engine (mySystem.development.docker).";
-                };
                 compose = mkOption {
                     type = types.bool;
                     default = true;
-                    description = "Install podman-compose for docker-compose style multi-container stacks.";
+                    description = "Install podman-compose for compose-style multi-container stacks.";
                 };
             };
 
-            cockpit = {
-                enable = mkEnableOption "Cockpit web management UI";
-                port = mkOption {
-                    type = types.port;
-                    default = 9090;
-                    description = "Port for the Cockpit web UI";
-                };
-                openFirewall = mkOption {
-                    type = types.bool;
-                    default = true;
-                    description = "Open the Cockpit port in the firewall so the web UI is reachable over the network.";
-                };
-            };
         };
     };
 }

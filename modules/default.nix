@@ -7,7 +7,6 @@
         ./systemConfig/audio.nix
         ./systemConfig/bluetooth.nix
         ./systemConfig/display.nix
-        ./systemConfig/docker.nix
         ./systemConfig/host-options.nix
         ./systemConfig/nix-ld.nix
         ./systemConfig/networking.nix
@@ -21,7 +20,6 @@
         ./gaming/steam.nix
         ./gaming/gamescope.nix
         ./services/podman.nix
-        ./services/cockpit.nix
         ../users/users.nix
         
     ];
