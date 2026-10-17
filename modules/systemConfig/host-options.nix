@@ -23,6 +23,7 @@
         gaming = {
             enable = mkEnableOption "gaming environment";
             steam = mkEnableOption "Steam";
+            gamescope = mkEnableOption "Gamescope nested gaming compositor";
         };
 
         development = {
@@ -72,7 +73,6 @@
 
             gaming = {
                 steam = mkEnableOption "Steam (user-level package)";
-                gamescope = mkEnableOption "Gamescope nested gaming compositor";
             };
 
             development = {
