@@ -19,6 +19,25 @@
             description = "Desktop environment selection. Use null explicitly for headless servers.";
         };
 
+        cursor = {
+                enable = mkEnableOption "cursor theme setup";
+                package = mkOption {
+                    type = types.package;
+                    default = pkgs.bibata-cursors;
+                    description = "Cursor theme package";
+                };
+                name = mkOption {
+                    type = types.str;
+                    default = "Bibata-Modern-Classic";
+                    description = "Cursor theme name for GTK/Hyprland";
+                };
+                size = mkOption {
+                    type = types.int;
+                    default = 24;
+                    description = "Cursor size";
+                };
+            };
+
         # ========== SYSTEM-LEVEL FEATURES ==========
         gaming = {
             enable = mkEnableOption "gaming environment";
@@ -91,63 +110,44 @@
                 };
             };
 
-        podman = {
-            enable = mkEnableOption "Podman container engine";
-            rootless = mkOption {
-                type = types.bool;
-                default = true;
-                description = "Run Podman rootless as `user` (least privilege). Set to false to use the system-wide (rootful) Podman socket instead.";
+            podman = {
+                enable = mkEnableOption "Podman container engine";
+                rootless = mkOption {
+                    type = types.bool;
+                    default = true;
+                    description = "Run Podman rootless as `user` (least privilege). Set to false to use the system-wide (rootful) Podman socket instead.";
+                };
+                user = mkOption {
+                    type = types.str;
+                    default = "";
+                    example = "sithy";
+                    description = "User that runs rootless Podman. Gets subuid/subgid ranges, lingering and the user Podman socket. Required when rootless = true.";
+                };
+                dockerCompat = mkOption {
+                    type = types.bool;
+                    default = false;
+                    description = "Provide a `docker` CLI alias for Podman. Conflicts with the Docker engine (mySystem.development.docker).";
+                };
+                compose = mkOption {
+                    type = types.bool;
+                    default = true;
+                    description = "Install podman-compose for docker-compose style multi-container stacks.";
+                };
             };
-            user = mkOption {
-                type = types.str;
-                default = "";
-                example = "sithy";
-                description = "User that runs rootless Podman. Gets subuid/subgid ranges, lingering and the user Podman socket. Required when rootless = true.";
-            };
-            dockerCompat = mkOption {
-                type = types.bool;
-                default = false;
-                description = "Provide a `docker` CLI alias for Podman. Conflicts with the Docker engine (mySystem.development.docker).";
-            };
-            compose = mkOption {
-                type = types.bool;
-                default = true;
-                description = "Install podman-compose for docker-compose style multi-container stacks.";
+
+            cockpit = {
+                enable = mkEnableOption "Cockpit web management UI";
+                port = mkOption {
+                    type = types.port;
+                    default = 9090;
+                    description = "Port for the Cockpit web UI";
+                };
+                openFirewall = mkOption {
+                    type = types.bool;
+                    default = true;
+                    description = "Open the Cockpit port in the firewall so the web UI is reachable over the network.";
+                };
             };
         };
-
-        cockpit = {
-            enable = mkEnableOption "Cockpit web management UI";
-            port = mkOption {
-                type = types.port;
-                default = 9090;
-                description = "Port for the Cockpit web UI";
-            };
-            openFirewall = mkOption {
-                type = types.bool;
-                default = true;
-                description = "Open the Cockpit port in the firewall so the web UI is reachable over the network.";
-            };
-        };
-
-        cursor = {
-            enable = mkEnableOption "cursor theme setup";
-            package = mkOption {
-                type = types.package;
-                default = pkgs.bibata-cursors;
-                description = "Cursor theme package";
-            };
-            name = mkOption {
-                type = types.str;
-                default = "Bibata-Modern-Classic";
-                description = "Cursor theme name for GTK/Hyprland";
-            };
-            size = mkOption {
-                type = types.int;
-                default = 24;
-                description = "Cursor size";
-            };
-        };
-
     };
 }
