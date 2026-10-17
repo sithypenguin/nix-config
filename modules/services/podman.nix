@@ -18,15 +18,10 @@ in
                     assertion = !cfg.rootless || cfg.user != "";
                     message = "mySystem.services.podman.user must be set when mySystem.services.podman.rootless = true.";
                 }
-                {
-                    assertion = !(cfg.dockerCompat && config.virtualisation.docker.enable);
-                    message = "mySystem.services.podman.dockerCompat conflicts with Docker (mySystem.development.docker). Disable one of them.";
-                }
             ];
 
             virtualisation.podman = {
                 enable = true;
-                dockerCompat = cfg.dockerCompat;
                 # Lets containers on the default network resolve each other by name
                 # (required for compose service-to-service networking).
                 defaultNetwork.settings.dns_enable = true;
@@ -55,7 +50,7 @@ in
             };
 
             # Per-user Podman API socket ($XDG_RUNTIME_DIR/podman/podman.sock), used by
-            # cockpit-podman and Docker-API compatible tools. The unit is shipped by the
+            # Podman Desktop and Docker-API compatible tools. The unit is shipped by the
             # podman package; restrict it to the configured user only.
             systemd.user.sockets.podman = {
                 wantedBy = [ "sockets.target" ];

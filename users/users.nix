@@ -4,6 +4,6 @@
     users.users.sithy = {
         isNormalUser = true;
         description = "SithyPenguin";
-        extraGroups = [ "networkmanager" "wheel" "docker"];
+        extraGroups = [ "networkmanager" "wheel" ];
   };
 }

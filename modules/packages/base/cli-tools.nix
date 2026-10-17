@@ -20,6 +20,5 @@
 		usbutils
 		lm_sensors
 		nvtopPackages.nvidia
-		docker
 	];
 }
