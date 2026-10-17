@@ -90,8 +90,6 @@
                     description = "Port for Ollama service";
                 };
             };
-        };
-
 
         podman = {
             enable = mkEnableOption "Podman container engine";
