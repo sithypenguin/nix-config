@@ -28,6 +28,7 @@
         packages.gui.design = true;
         packages.gui.tui = true;
         packages.gui.nomachine = false;
+        packages.gui.podmanDesktop = true;
         packages.gaming.steam = true;
         packages.development.godot = true;
 

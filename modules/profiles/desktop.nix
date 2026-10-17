@@ -13,7 +13,6 @@
         development.godot = true;
         development.nixLd = true;
         shell.zsh = true;
-        development.docker = true;
         networking.tailscale = true;
 
         # Package categories for this profile
@@ -30,6 +29,7 @@
         packages.gui.design = true;
         packages.gui.tui = true;
         packages.gui.nomachine = true;
+        packages.gui.podmanDesktop = true;
         packages.gaming.steam = true;
         packages.development.godot = true;
 

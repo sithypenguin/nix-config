@@ -25,6 +25,7 @@ let
       design       = import ../../modules/packages/gui/design.nix;
       tui          = import ../../modules/packages/gui/tui.nix;
       nomachine    = import ../../modules/packages/gui/nomachine.nix;
+      podmanDesktop = import ../../modules/packages/gui/podman-desktop.nix;
     };
     gaming = {
       steam       = import ../../modules/packages/gaming/steam.nix;
@@ -50,6 +51,7 @@ let
     ++ (lib.optionals mySystem.packages.gui.design [ profiles.gui.design ])
     ++ (lib.optionals mySystem.packages.gui.tui [ profiles.gui.tui ])
     ++ (lib.optionals mySystem.packages.gui.nomachine [ profiles.gui.nomachine ])
+    ++ (lib.optionals mySystem.packages.gui.podmanDesktop [ profiles.gui.podmanDesktop ])
     ++ (lib.optionals mySystem.packages.gaming.steam [ profiles.gaming.steam ])
     ++ (lib.optionals mySystem.packages.development.godot [ profiles.development.godot ]);
 
