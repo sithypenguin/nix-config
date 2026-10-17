@@ -19,6 +19,7 @@
         ./systemConfig/hyprland.nix
         ./hyprland/cachix.nix
         ./gaming/steam.nix
+        ./gaming/gamescope.nix
         ../users/users.nix
         
     ];
