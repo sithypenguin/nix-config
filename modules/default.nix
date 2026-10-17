@@ -20,6 +20,8 @@
         ./hyprland/cachix.nix
         ./gaming/steam.nix
         ./gaming/gamescope.nix
+        ./services/podman.nix
+        ./services/cockpit.nix
         ../users/users.nix
         
     ];
