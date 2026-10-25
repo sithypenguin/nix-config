@@ -4,6 +4,5 @@
 		direnv
 		pkg-config
 		dotnetCorePackages.sdk_10_0
-		pkgs-unstable.open-webui
 	];
 }
