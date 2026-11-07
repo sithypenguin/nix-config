@@ -29,4 +29,16 @@
 
     # Package configuration
     nixpkgs.config.allowUnfree = true;              # Allow installation of unfree packages
+
+    # Printing support for network and USB printers
+    services.printing = {
+        enable = true;
+        drivers = [ pkgs.gutenprint ];
+    };
+    services.ipp-usb.enable = true;
+    services.avahi = {
+        enable = true;
+        nssmdns4 = true;
+        openFirewall = true;
+    };
 }
