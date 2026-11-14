@@ -1,37 +1,25 @@
 { ... }:
 
+# Layer 3 — desktop.
+#
+# Imports graphical.nix (which imports base.nix), then declares only what makes
+# this a desktop: Plasma 6 on AMD, Tailscale, and the two desktop-only packages.
+#
+# To add a third graphical host, copy this file's shape: import a layer,
+# declare deltas. Never repeat the shared policy.
+
 {
+    imports = [ ./graphical.nix ];
+
     mySystem = {
         desktop.enable = true;
-        environment = "plasma6";
         desktop.amd = true;
         desktop.nvidia = false;
-        cursor.enable = true;
-        gaming.enable = true;
-        gaming.steam = true;
-        development.enable = true;
-        development.godot = true;
-        development.nixLd = true;
-        shell.zsh = true;
+
+        environment = "plasma6";
         networking.tailscale = true;
 
-        # Package categories for this profile
-        packages.base.core = true;
-        packages.base.cliTools = true;
-        packages.base.devTools = true;
-        packages.network.base = true;
-        packages.network.wireless = true;
-        packages.network.bluetooth = true;
-        packages.gui.base = true;
-        packages.gui.multimedia = true;
-        packages.gui.office = true;
-        packages.gui.comms = true;
-        packages.gui.design = true;
-        packages.gui.tui = true;
         packages.gui.nomachine = true;
         packages.gui.podmanDesktop = true;
-        packages.gaming.steam = true;
-        packages.development.godot = true;
-
     };
 }

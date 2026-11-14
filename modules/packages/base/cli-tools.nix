@@ -13,12 +13,14 @@
 		vulkan-tools
 		clinfo
 		radeontop
+		amdgpu_top
+		rocmPackages.rocm-smi
+		nvtopPackages.amd
 		glmark2
 		vkmark
 		stress-ng
 		pciutils
 		usbutils
 		lm_sensors
-		nvtopPackages.nvidia
 	];
 }

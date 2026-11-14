@@ -40,13 +40,11 @@
 
         # ========== SYSTEM-LEVEL FEATURES ==========
         gaming = {
-            enable = mkEnableOption "gaming environment";
             steam = mkEnableOption "Steam";
             gamescope = mkEnableOption "Gamescope nested gaming compositor";
         };
 
         development = {
-            enable = mkEnableOption "development tools";
             godot = mkEnableOption "Godot from unstable nixpkgs";
             nixLd = mkEnableOption "nix-ld dynamic linker shim for unpatched binaries";
         };

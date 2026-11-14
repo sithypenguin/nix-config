@@ -1,36 +1,21 @@
 { ... }:
 
+# Layer 3 — laptop.
+#
+# Imports graphical.nix (which imports base.nix), then declares only what makes
+# this a laptop: Hyprland, Bluetooth hardware, and no NoMachine.
+
 {
+    imports = [ ./graphical.nix ];
+
     mySystem = {
         laptop.enable = true;
-        #laptop.environment = "plasma6";
-        cursor.enable = true;
-        environment = "hyprland";
-        gaming.enable = true;
-        gaming.steam = true;
-        development.enable = true;
         hardware.bluetooth = true;
-        development.godot = true;
-        development.nixLd = true;
-        shell.zsh = true;
 
-        # Package categories for this profile
-        packages.base.core = true;
-        packages.base.cliTools = true;
-        packages.base.devTools = true;
-        packages.network.base = true;
-        packages.network.wireless = true;
-        packages.network.bluetooth = true;
-        packages.gui.base = true;
-        packages.gui.multimedia = true;
-        packages.gui.office = true;
-        packages.gui.comms = true;
-        packages.gui.design = true;
-        packages.gui.tui = true;
+        environment = "hyprland";
+
+        # NoMachine is desktop-only; stated explicitly so the intent is visible
         packages.gui.nomachine = false;
         packages.gui.podmanDesktop = true;
-        packages.gaming.steam = true;
-        packages.development.godot = true;
-
     };
 }
