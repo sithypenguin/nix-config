@@ -114,8 +114,15 @@
         checks.${system} = let
             inherit (nixpkgs) lib;
             pkgs' = nixpkgs.legacyPackages.${system};
+            # Read the user from the host's own evaluated config rather than
+            # hardcoding a name: hosts may run different accounts (a server per
+            # role), and a hardcoded name fails with "attribute 'sithy' missing"
+            # the moment one does.
             hostPackages = host:
-                self.nixosConfigurations.${host}.config.home-manager.users.sithy.home.packages;
+                let cfg = self.nixosConfigurations.${host}.config;
+                    users = builtins.attrNames cfg.home-manager.users;
+                in if users == [] then []
+                   else cfg.home-manager.users.${builtins.head users}.home.packages;
             guiPrefixes = [ "firefox" "chromium" "vscode" "discord" "steam" "spotify" "libreoffice" ];
             guiOn = host: builtins.filter
                 (p: lib.any (g: lib.hasPrefix g p.name) guiPrefixes)
