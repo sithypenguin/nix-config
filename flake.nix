@@ -65,6 +65,10 @@
                 home-manager.nixosModules.home-manager
                 ({ config, ... }: {
                   home-manager.useUserPackages = true;
+                  # Share the system package set instead of building a second
+                  # instance: HM then inherits nixpkgs.config from sysConfig.nix,
+                  # so home.nix no longer needs its own allowUnfree.
+                  home-manager.useGlobalPkgs = true;
                   home-manager.backupFileExtension = "backup";
                   home-manager.users.${username} = import ./users/${username}/home.nix;
                   home-manager.extraSpecialArgs = {

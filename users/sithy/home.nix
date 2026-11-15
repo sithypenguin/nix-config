@@ -71,8 +71,9 @@ in {
     # DE-specific user modules
     ++ envModules;
 
-  # Allow unfree packages for Home Manager
-  nixpkgs.config.allowUnfree = true;
+  # Allow unfree packages for Home Manager is inherited from the system
+  # package set via home-manager.useGlobalPkgs in flake.nix, so it is not
+  # repeated here.
 
   # User account settings
   home.username = "sithy";
