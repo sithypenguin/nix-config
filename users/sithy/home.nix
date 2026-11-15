@@ -1,38 +1,44 @@
 # Home Manager configuration for user 'sithy'
 # This file manages user-specific packages and configurations
 # All feature selection is now policy-modular: profiles set mySystem options, this file imports based on those options
-{ lib, pkgs, pkgs-unstable, mySystem, ... }:
+{
+  lib,
+  pkgs,
+  pkgs-unstable,
+  mySystem,
+  ...
+}:
 
 let
   # Category modules grouped by purpose; each is a Home Manager module
   profiles = {
     base = {
-      core      = import ../../modules/packages/base/core.nix;
-      cliTools  = import ../../modules/packages/base/cli-tools.nix;
-      devTools  = import ../../modules/packages/base/dev-tools.nix;
+      core = import ../../modules/packages/base/core.nix;
+      cliTools = import ../../modules/packages/base/cli-tools.nix;
+      devTools = import ../../modules/packages/base/dev-tools.nix;
       # Fonts are system-wide; managed under modules/systemConfig/fonts.nix
     };
     network = {
-      base      = import ../../modules/packages/network/base.nix;
-      wireless  = import ../../modules/packages/network/wireless.nix;
+      base = import ../../modules/packages/network/base.nix;
+      wireless = import ../../modules/packages/network/wireless.nix;
       bluetooth = import ../../modules/packages/network/bluetooth.nix;
     };
     gui = {
-      base         = import ../../modules/packages/gui/base.nix;
-      multimedia   = import ../../modules/packages/gui/multimedia.nix;
-      office       = import ../../modules/packages/gui/office.nix;
-      comms        = import ../../modules/packages/gui/comms.nix;
-      design       = import ../../modules/packages/gui/design.nix;
-      tui          = import ../../modules/packages/gui/tui.nix;
-      nomachine    = import ../../modules/packages/gui/nomachine.nix;
+      base = import ../../modules/packages/gui/base.nix;
+      multimedia = import ../../modules/packages/gui/multimedia.nix;
+      office = import ../../modules/packages/gui/office.nix;
+      comms = import ../../modules/packages/gui/comms.nix;
+      design = import ../../modules/packages/gui/design.nix;
+      tui = import ../../modules/packages/gui/tui.nix;
+      nomachine = import ../../modules/packages/gui/nomachine.nix;
       podmanDesktop = import ../../modules/packages/gui/podman-desktop.nix;
       hermesDesktop = import ../../modules/packages/gui/hermes-desktop.nix;
     };
     gaming = {
-      steam       = import ../../modules/packages/gaming/steam.nix;
+      steam = import ../../modules/packages/gaming/steam.nix;
     };
     development = {
-      godot       = import ../../modules/packages/development/godot.nix;
+      godot = import ../../modules/packages/development/godot.nix;
     };
   };
 
@@ -58,13 +64,15 @@ let
     ++ (lib.optionals mySystem.packages.development.godot [ profiles.development.godot ]);
 
   # Desktop environment-specific user modules (conditionally included by environment policy)
-  envModules =
-    (lib.optionals (mySystem.environment == "hyprland") [
+  envModules = (
+    lib.optionals (mySystem.environment == "hyprland") [
       ../../modules/hyprland/hyprland.nix
       ../../modules/hyprland/hyprland-config.nix
-    ]);
+    ]
+  );
 
-in {
+in
+{
   imports =
     # Policy-based package modules (controlled by mySystem options set in profiles)
     packageModules
@@ -98,22 +106,26 @@ in {
   home.stateVersion = "25.05";
 
   xdg.desktopEntries."PrusaSlicer" = {
-  name = "PrusaSlicer";
-  genericName = "3D Printing Software";
-  # The --single-instance flag is the key here
-  exec = "env DESKTOP_PORTAL_ID=PrusaSlicer prusa-slicer --single-instance %U";
-  icon = "PrusaSlicer";
-  terminal = false;
-  categories = [ "Graphics" "3DGraphics" "Engineering" ];
-  mimeType = [ 
-    "model/stl" 
-    "model/3mf" 
-    "x-scheme-handler/prusaslicer" 
-  ];
-  settings = {
-    StartupWMClass = "prusa-slicer";
+    name = "PrusaSlicer";
+    genericName = "3D Printing Software";
+    # The --single-instance flag is the key here
+    exec = "env DESKTOP_PORTAL_ID=PrusaSlicer prusa-slicer --single-instance %U";
+    icon = "PrusaSlicer";
+    terminal = false;
+    categories = [
+      "Graphics"
+      "3DGraphics"
+      "Engineering"
+    ];
+    mimeType = [
+      "model/stl"
+      "model/3mf"
+      "x-scheme-handler/prusaslicer"
+    ];
+    settings = {
+      StartupWMClass = "prusa-slicer";
+    };
   };
-};
   # XDG MIME type associations
   # The prusaslicer handler is provided by the PrusaSlicer package's own desktop
   # entry (mimeinfo.cache maps x-scheme-handler/prusaslicer=PrusaSlicer.desktop).
@@ -129,7 +141,7 @@ in {
     enable = true;
     nix-direnv.enable = true;
     silent = true;
-};
+  };
 
   programs.zsh = {
     enable = true;
@@ -148,16 +160,19 @@ in {
       # attribute happened to match the system hostname.
       #
       # Absolute path, not `.`: the alias now works from any directory.
-      nix-flake-test   = "sudo nixos-rebuild test      --flake /home/sithy/Development/nix-dev/nix-config#$HOST";
+      nix-flake-test = "sudo nixos-rebuild test      --flake /home/sithy/Development/nix-dev/nix-config#$HOST";
       nix-flake-switch = "sudo nixos-rebuild switch    --flake /home/sithy/Development/nix-dev/nix-config#$HOST";
-      nix-flake-dry    = "nixos-rebuild dry-build       --flake /home/sithy/Development/nix-dev/nix-config#$HOST";
+      nix-flake-dry = "nixos-rebuild dry-build       --flake /home/sithy/Development/nix-dev/nix-config#$HOST";
     };
 
     oh-my-zsh = {
       enable = true;
-      theme = "linuxonly";  # Set the Oh My Zsh theme to 'linuxonly'
-      plugins = [ "git" "sudo" "direnv" ];  # List of Oh My Zsh plugins to enable
+      theme = "linuxonly"; # Set the Oh My Zsh theme to 'linuxonly'
+      plugins = [
+        "git"
+        "sudo"
+        "direnv"
+      ]; # List of Oh My Zsh plugins to enable
     };
   };
 }
-

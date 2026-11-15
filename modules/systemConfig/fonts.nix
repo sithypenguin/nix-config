@@ -29,7 +29,10 @@
       enable = true;
 
       defaultFonts = {
-        monospace = [ "FiraCode Nerd Font Mono" "JetBrains Mono" ];
+        monospace = [
+          "FiraCode Nerd Font Mono"
+          "JetBrains Mono"
+        ];
         sansSerif = [ "Fira Sans" ];
         serif = [ "Fira Sans" ];
         emoji = [ "Noto Color Emoji" ];

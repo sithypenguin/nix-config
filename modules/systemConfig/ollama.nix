@@ -1,11 +1,19 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 let
   cfg = config.mySystem.services.ollama;
   ollamaPackage =
-    if config.mySystem.hardware.gpu == "nvidia" then pkgs.ollama-cuda
-    else if config.mySystem.hardware.gpu == "amd" then pkgs.ollama-rocm
-    else pkgs.ollama;
+    if config.mySystem.hardware.gpu == "nvidia" then
+      pkgs.ollama-cuda
+    else if config.mySystem.hardware.gpu == "amd" then
+      pkgs.ollama-rocm
+    else
+      pkgs.ollama;
 in
 {
   config = lib.mkIf cfg.enable {

@@ -14,16 +14,16 @@
 # reachable. Set mySystem.services.openssh = false to opt out.
 
 {
-    imports = [ ./base.nix ];
+  imports = [ ./base.nix ];
 
-    mySystem = {
-        environment = lib.mkDefault null;   # headless: no display manager / desktop environment
+  mySystem = {
+    environment = lib.mkDefault null; # headless: no display manager / desktop environment
 
-        services.openssh = lib.mkDefault true;
-        networking.networkmanager = lib.mkDefault true;
+    services.openssh = lib.mkDefault true;
+    networking.networkmanager = lib.mkDefault true;
 
-        services.podman.enable = lib.mkDefault true;
-        services.podman.rootless = lib.mkDefault true;   # least privilege; set false for rootful Podman
-        services.podman.compose = lib.mkDefault true;
-    };
+    services.podman.enable = lib.mkDefault true;
+    services.podman.rootless = lib.mkDefault true; # least privilege; set false for rootful Podman
+    services.podman.compose = lib.mkDefault true;
+  };
 }

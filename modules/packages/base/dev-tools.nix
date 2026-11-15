@@ -1,8 +1,13 @@
-{ config, pkgs, pkgs-unstable, ... }:
 {
-	home.packages = with pkgs; [
-		direnv
-		pkg-config
-		dotnetCorePackages.sdk_10_0
-	];
+  config,
+  pkgs,
+  pkgs-unstable,
+  ...
+}:
+{
+  home.packages = with pkgs; [
+    direnv
+    pkg-config
+    dotnetCorePackages.sdk_10_0
+  ];
 }

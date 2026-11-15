@@ -16,13 +16,13 @@
 # and evaluation fails with "conflicting definition values".
 
 {
-    mySystem = {
-        shell.zsh = lib.mkDefault true;
+  mySystem = {
+    shell.zsh = lib.mkDefault true;
 
-        packages.base.core = lib.mkDefault true;
-        packages.base.cliTools = lib.mkDefault true;
-        packages.base.devTools = lib.mkDefault true;
+    packages.base.core = lib.mkDefault true;
+    packages.base.cliTools = lib.mkDefault true;
+    packages.base.devTools = lib.mkDefault true;
 
-        packages.network.base = lib.mkDefault true;
-    };
+    packages.network.base = lib.mkDefault true;
+  };
 }

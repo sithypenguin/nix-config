@@ -1,4 +1,9 @@
-{ config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
 {
   config = lib.mkIf (config.mySystem.hardware.gpu == "amd") {
@@ -13,6 +18,6 @@
 
     hardware.firmware = [ pkgs.linux-firmware ];
 
-    environment.systemPackages = [pkgs.amdgpu_top];
+    environment.systemPackages = [ pkgs.amdgpu_top ];
   };
 }

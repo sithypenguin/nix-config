@@ -1,68 +1,73 @@
-{ config, pkgs, pkgs-unstable, ... }:
+{
+  config,
+  pkgs,
+  pkgs-unstable,
+  ...
+}:
 
-let 
-    unstable = pkgs-unstable;
+let
+  unstable = pkgs-unstable;
 in
 {
-    home.packages = with pkgs; [
-        # Hyprland Doc Must-Haves
+  home.packages = with pkgs; [
+    # Hyprland Doc Must-Haves
 
-        ## Notifications
-        unstable.mako
-        unstable.swaynotificationcenter
+    ## Notifications
+    unstable.mako
+    unstable.swaynotificationcenter
 
-        ## Audio
-        unstable.pipewire
-        unstable.wireplumber
-        unstable.pavucontrol 
+    ## Audio
+    unstable.pipewire
+    unstable.wireplumber
+    unstable.pavucontrol
 
-        ## Authentication
-        unstable.hyprpolkitagent
+    ## Authentication
+    unstable.hyprpolkitagent
 
-        ## Desktop Portal
-        xdg-desktop-portal-hyprland
+    ## Desktop Portal
+    xdg-desktop-portal-hyprland
 
-        ## Status Bar
-        unstable.waybar
-        
-        ## Screen Lock
-        unstable.wlogout
+    ## Status Bar
+    unstable.waybar
 
-        ## Lock Screen
-        unstable.hyprlock
+    ## Screen Lock
+    unstable.wlogout
 
-        ## Wallpaper
-        unstable.hyprpaper
+    ## Lock Screen
+    unstable.hyprlock
 
-        ## Idle Management
-        unstable.hypridle
+    ## Wallpaper
+    unstable.hyprpaper
 
-        ## App Launcher
-        unstable.rofi
+    ## Idle Management
+    unstable.hypridle
 
-        ## Clipboard manager
-        unstable.wl-clipboard 
-        unstable.cliphist # Dependency on wl-clipboard
+    ## App Launcher
+    unstable.rofi
 
-        ## File manager
-        #xfce.thunar
-        nemo-with-extensions
+    ## Clipboard manager
+    unstable.wl-clipboard
+    unstable.cliphist # Dependency on wl-clipboard
 
-        ## Screen capture/recording
-        unstable.grim
-        unstable.slurp
-        unstable.wf-recorder
+    ## File manager
+    #xfce.thunar
+    nemo-with-extensions
 
-        ## Calculator
-        qalculate-gtk
+    ## Screen capture/recording
+    unstable.grim
+    unstable.slurp
+    unstable.wf-recorder
 
-        ## Hyprland System Info
-        hyprsysteminfo
+    ## Calculator
+    qalculate-gtk
 
-        ## Brightness control
-        brightnessctl
-    ];
+    ## Hyprland System Info
+    hyprsysteminfo
 
-    # Simply enable the service that the package already provides
-    services.hyprpolkitagent.enable = true;
+    ## Brightness control
+    brightnessctl
+  ];
+
+  # Simply enable the service that the package already provides
+  services.hyprpolkitagent.enable = true;
 }

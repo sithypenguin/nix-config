@@ -13,29 +13,29 @@
 # host, so a headless compute box can carry an NVIDIA card without a desktop.
 
 {
-    imports = [ ./base.nix ];
+  imports = [ ./base.nix ];
 
-    mySystem = {
-        cursor.enable = lib.mkDefault true;
-        networking.networkmanager = lib.mkDefault true;
+  mySystem = {
+    cursor.enable = lib.mkDefault true;
+    networking.networkmanager = lib.mkDefault true;
 
-        gaming.steam = lib.mkDefault true;
+    gaming.steam = lib.mkDefault true;
 
-        development.godot = lib.mkDefault true;
-        development.nixLd = lib.mkDefault true;
+    development.godot = lib.mkDefault true;
+    development.nixLd = lib.mkDefault true;
 
-        packages.network.wireless = lib.mkDefault true;
-        packages.network.bluetooth = lib.mkDefault true;
+    packages.network.wireless = lib.mkDefault true;
+    packages.network.bluetooth = lib.mkDefault true;
 
-        packages.gui.base = lib.mkDefault true;
-        packages.gui.multimedia = lib.mkDefault true;
-        packages.gui.office = lib.mkDefault true;
-        packages.gui.comms = lib.mkDefault true;
-        packages.gui.design = lib.mkDefault true;
-        packages.gui.tui = lib.mkDefault true;
-        packages.gui.hermesDesktop = lib.mkDefault true;
+    packages.gui.base = lib.mkDefault true;
+    packages.gui.multimedia = lib.mkDefault true;
+    packages.gui.office = lib.mkDefault true;
+    packages.gui.comms = lib.mkDefault true;
+    packages.gui.design = lib.mkDefault true;
+    packages.gui.tui = lib.mkDefault true;
+    packages.gui.hermesDesktop = lib.mkDefault true;
 
-        packages.gaming.steam = lib.mkDefault true;
-        packages.development.godot = lib.mkDefault true;
-    };
+    packages.gaming.steam = lib.mkDefault true;
+    packages.development.godot = lib.mkDefault true;
+  };
 }

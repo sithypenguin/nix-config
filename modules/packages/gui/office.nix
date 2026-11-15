@@ -1,5 +1,10 @@
 # Productivity apps
-{ config, pkgs, pkgs-unstable, ... }:
+{
+  config,
+  pkgs,
+  pkgs-unstable,
+  ...
+}:
 {
   home.packages = with pkgs; [
     libreoffice

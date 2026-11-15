@@ -13,16 +13,16 @@
 # directory holding hardware-configuration.nix, a hostname, and its GPU vendor.
 
 {
-    imports = [ ./graphical.nix ];
+  imports = [ ./graphical.nix ];
 
-    mySystem = {
-        desktop.enable = lib.mkDefault true;
+  mySystem = {
+    desktop.enable = lib.mkDefault true;
 
-        environment = lib.mkDefault "plasma6";
-        networking.tailscale = lib.mkDefault true;
-        services.printing = lib.mkDefault true;
+    environment = lib.mkDefault "plasma6";
+    networking.tailscale = lib.mkDefault true;
+    services.printing = lib.mkDefault true;
 
-        packages.gui.nomachine = lib.mkDefault true;
-        packages.gui.podmanDesktop = lib.mkDefault true;
-    };
+    packages.gui.nomachine = lib.mkDefault true;
+    packages.gui.podmanDesktop = lib.mkDefault true;
+  };
 }

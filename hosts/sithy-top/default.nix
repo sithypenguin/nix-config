@@ -4,19 +4,19 @@
 # selected in flake.nix. Only what is specific to THIS machine lives here.
 
 {
-    imports = [ ./hardware-configuration.nix ];
+  imports = [ ./hardware-configuration.nix ];
 
-    mySystem = {
-        hardware.gpu = "amd";
+  mySystem = {
+    hardware.gpu = "amd";
 
-        services.ollama.enable = true;
-        gaming.gamescope = true;
+    services.ollama.enable = true;
+    gaming.gamescope = true;
 
-        # Podman is enabled for local container management via Podman Desktop.
-        # services.podman.user defaults to mySystem.primaryUser, so it is not
-        # repeated here.
-        services.podman.enable = true;
-    };
+    # Podman is enabled for local container management via Podman Desktop.
+    # services.podman.user defaults to mySystem.primaryUser, so it is not
+    # repeated here.
+    services.podman.enable = true;
+  };
 
-    networking.hostName = "sithy-top";
+  networking.hostName = "sithy-top";
 }
