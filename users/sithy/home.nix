@@ -141,8 +141,15 @@ in {
 
     shellAliases = {
       cdfh = "cd ~/Development/nix-dev/nix-config";
-      nix-flake-test = "sudo nixos-rebuild test --flake .#$HOSTNAME";
-      nix-flake-switch = "sudo nixos-rebuild switch --flake .#$HOSTNAME";
+
+      # $HOST, not $HOSTNAME: zsh sets $HOST and leaves $HOSTNAME empty, so the
+      # old form expanded to a bare `.#` and only worked because the flake
+      # attribute happened to match the system hostname.
+      #
+      # Absolute path, not `.`: the alias now works from any directory.
+      nix-flake-test   = "sudo nixos-rebuild test      --flake /home/sithy/Development/nix-dev/nix-config#$HOST";
+      nix-flake-switch = "sudo nixos-rebuild switch    --flake /home/sithy/Development/nix-dev/nix-config#$HOST";
+      nix-flake-dry    = "nixos-rebuild dry-build       --flake /home/sithy/Development/nix-dev/nix-config#$HOST";
     };
 
     oh-my-zsh = {
