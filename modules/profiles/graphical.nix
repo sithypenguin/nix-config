@@ -17,6 +17,7 @@
 
     mySystem = {
         cursor.enable = lib.mkDefault true;
+        networking.networkmanager = lib.mkDefault true;
 
         gaming.steam = lib.mkDefault true;
 

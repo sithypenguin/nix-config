@@ -20,6 +20,7 @@
         environment = lib.mkDefault null;   # headless: no display manager / desktop environment
 
         services.openssh = lib.mkDefault true;
+        networking.networkmanager = lib.mkDefault true;
 
         services.podman.enable = lib.mkDefault true;
         services.podman.rootless = lib.mkDefault true;   # least privilege; set false for rootful Podman

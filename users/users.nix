@@ -7,6 +7,10 @@
     users.users.${config.mySystem.primaryUser} = {
         isNormalUser = true;
         description = "SithyPenguin";
-        extraGroups = [ "networkmanager" "wheel" ];
+        # networkmanager only when the service is enabled: the group does not
+        # exist otherwise, and a host without NetworkManager would carry a
+        # dangling group reference.
+        extraGroups = [ "wheel" ]
+            ++ lib.optional config.mySystem.networking.networkmanager "networkmanager";
     };
 }

@@ -92,7 +92,8 @@
         };
 
         networking = {
-            tailscale =mkEnableOption "Tailscale client";
+            tailscale = mkEnableOption "Tailscale client";
+            networkmanager = mkEnableOption "NetworkManager network connectivity";
         };
 
         # ========== USER-LEVEL PACKAGE CATEGORIES ==========

@@ -1,7 +1,10 @@
 { config, pkgs, lib, ... }:
 
 {
-  config = lib.mkIf (config.mySystem.laptop.enable || config.mySystem.desktop.enable) {
+  # Gated on the option alone. The old laptop/desktop conjunct could not express
+  # a server with NetworkManager, which is how a homelab box gets a static IP,
+  # bond or VLAN set declaratively.
+  config = lib.mkIf config.mySystem.networking.networkmanager {
     # Enable NetworkManager for network connectivity
     networking.networkmanager.enable = true;
     networking.networkmanager.wifi.powersave = false;
