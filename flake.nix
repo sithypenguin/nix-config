@@ -96,5 +96,45 @@
         # other     = mkHost { hostname = "other";     profile = "desktop"; username = "differentuser"; };
         };
 
+        # `nix fmt` — one formatter for every .nix file in the tree.
+        formatter.${system} = nixpkgs.legacyPackages.${system}.nixfmt;
+
+        # `nix develop` — a shell with the tools needed to edit this repo.
+        devShells.${system}.default = nixpkgs.legacyPackages.${system}.mkShell {
+            packages = with nixpkgs.legacyPackages.${system}; [
+                nixfmt
+                nil
+                nixd
+            ];
+        };
+
+        # `nix flake check` runs these. They encode the properties the profile
+        # layering is supposed to guarantee, so a future edit that breaks one
+        # fails the check instead of being noticed later.
+        checks.${system} = let
+            inherit (nixpkgs) lib;
+            pkgs' = nixpkgs.legacyPackages.${system};
+            hostPackages = host:
+                self.nixosConfigurations.${host}.config.home-manager.users.sithy.home.packages;
+            guiPrefixes = [ "firefox" "chromium" "vscode" "discord" "steam" "spotify" "libreoffice" ];
+            guiOn = host: builtins.filter
+                (p: lib.any (g: lib.hasPrefix g p.name) guiPrefixes)
+                (hostPackages host);
+
+            # Every host whose profile is server.nix must carry zero GUI packages.
+            serverHosts = builtins.filter
+                (h: (self.nixosConfigurations.${h}.config.mySystem.environment or null) == null)
+                (builtins.attrNames self.nixosConfigurations);
+            offenders = builtins.concatMap
+                (h: map (p: "${h}: ${p.name}") (guiOn h))
+                serverHosts;
+        in {
+            server-profile-is-headless = pkgs'.runCommand "check-server-headless" {} (
+                if offenders == []
+                then ''echo "ok: ${toString (builtins.length serverHosts)} headless host(s), no GUI packages" > $out''
+                else ''echo "GUI packages on headless hosts: ${lib.concatStringsSep ", " offenders}" >&2; exit 1''
+            );
+        };
+
     };
 }
