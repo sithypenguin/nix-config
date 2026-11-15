@@ -114,8 +114,12 @@ in {
   };
 };
   # XDG MIME type associations
+  # The prusaslicer handler is provided by the PrusaSlicer package's own desktop
+  # entry (mimeinfo.cache maps x-scheme-handler/prusaslicer=PrusaSlicer.desktop).
+  # The previous entry pointed at org.kde.klipper.desktop, which does not exist
+  # in nixpkgs and left a dangling association.
   xdg.mimeApps.defaultApplications = {
-    "x-scheme-handler/prusaslicer" = [ "org.kde.klipper.desktop" ];
+    "x-scheme-handler/prusaslicer" = [ "PrusaSlicer.desktop" ];
   };
 
   home.preferXdgDirectories = true;
@@ -132,9 +136,8 @@ in {
     autosuggestion.enable = true;
     syntaxHighlighting.enable = true;
 
-    initContent = ''
-      eval "$(direnv hook zsh)"
-    '';
+    # No manual `eval "$(direnv hook zsh)"` here: programs.direnv.enable already
+    # writes that hook into .zshrc, and the duplicate ran it twice per shell.
 
     shellAliases = {
       cdfh = "cd ~/Development/nix-dev/nix-config";
