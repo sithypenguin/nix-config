@@ -13,10 +13,19 @@
             url = "github:nix-community/home-manager/release-26.05";
             inputs.nixpkgs.follows = "nixpkgs";
         };
+        # Pinned to the nixpkgs revision in hermes-agent's own flake.lock.
+        # Do NOT add `inputs.nixpkgs.follows = "nixpkgs"`: the upstream package
+        # needs pnpm >= 11 and a patchelf whose patch set still applies, and
+        # nixos-26.05 provides neither (pnpm.override missing; patchelf 0.15.2
+        # patch hunks fail). Following this repo's nixpkgs breaks the build.
+        hermes-agent = {
+            url = "github:NousResearch/hermes-agent";
+            inputs.nixpkgs.url = "github:NixOS/nixpkgs/02c087f3fe673c9e317f206a627cb6b910336dbe";
+        };
     };
 
     # Required: Outputs structure for the flake
-    outputs = inputs@{ self, nixpkgs, nixpkgs-unstable, home-manager, ... }: 
+    outputs = inputs@{ self, nixpkgs, nixpkgs-unstable, home-manager, hermes-agent, ... }: 
 
     # let...in block for local variables
     let 
@@ -53,6 +62,9 @@
                   home-manager.extraSpecialArgs = {
                     inherit pkgs-unstable hostname;
                     mySystem = config.mySystem;  # now in scope
+                    # Hermes desktop package, so modules/packages/gui/hermes-desktop.nix
+                    # does not need to know the flake input's attribute path.
+                    hermesDesktop = hermes-agent.packages.${system}.desktop;
                   };
                 })
             ] ++ extraModules; # Appends any additional modules passed to mkHost
