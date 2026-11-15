@@ -268,6 +268,7 @@ than a silently wrong config.
 - [tui.nix](modules/packages/gui/tui.nix) — spotatui
 - [nomachine.nix](modules/packages/gui/nomachine.nix) — pinned NoMachine client
 - [podman-desktop.nix](modules/packages/gui/podman-desktop.nix) — Podman Desktop
+- [hermes-desktop.nix](modules/packages/gui/hermes-desktop.nix) — Hermes Agent desktop client, from the upstream flake input
 
 **modules/packages/gaming/**
 - [steam.nix](modules/packages/gaming/steam.nix) — user-level Steam
@@ -1049,9 +1050,33 @@ All options are declared in `modules/systemConfig/host-options.nix`.
 ### User packages
 
 `packages.base.{core,cliTools,devTools}`, `packages.network.{base,wireless,bluetooth}`,
-`packages.gui.{base,multimedia,office,comms,design,tui,nomachine,podmanDesktop}`,
+`packages.gui.{base,multimedia,office,comms,design,tui,nomachine,podmanDesktop,hermesDesktop}`,
 `packages.gaming.steam`, `packages.development.godot` — mapped in
 `users/sithy/home.nix`.
+
+### Hermes Agent desktop client
+
+`mySystem.packages.gui.hermesDesktop` installs the Electron desktop app from the
+`hermes-agent` flake input. The package ships its own `.desktop` entry and icon, so
+`home.packages` is enough — it appears in the launcher as **Hermes** and on `PATH` as
+`hermes-desktop`.
+
+The input is deliberately **not** `inputs.nixpkgs.follows = "nixpkgs"`:
+
+```nix
+hermes-agent = {
+    url = "github:NousResearch/hermes-agent";
+    inputs.nixpkgs.url = "github:NixOS/nixpkgs/02c087f3fe673c9e317f206a627cb6b910336dbe";
+};
+```
+
+Following this repo's `nixos-26.05` nixpkgs breaks the build in two independent ways:
+`fetch-pnpm-deps` calls `pnpm.override`, which that nixpkgs' pnpm does not expose, and
+`patchelf-0.15.2`'s patch set no longer applies. The pinned revision is the one in
+`hermes-agent`'s own `flake.lock`, so it is the combination upstream actually tests.
+
+To move the app to a different host, set the option in that host's profile or
+`default.nix`; to drop it, set it `false`.
 
 ### Ollama Example
 
