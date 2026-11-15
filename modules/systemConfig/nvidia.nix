@@ -1,7 +1,7 @@
 { config, lib, pkgs, ...}:
 
 {
-    config = lib.mkIf (config.mySystem.desktop.enable && config.mySystem.desktop.nvidia) {
+    config = lib.mkIf (config.mySystem.hardware.gpu == "nvidia") {
         hardware.graphics = {
             enable = true;
         };
@@ -12,7 +12,7 @@
             modesetting.enable = true;
             powerManagement.enable = false;
             powerManagement.finegrained = false;
-            open = false;
+            open = config.mySystem.hardware.nvidiaOpen;
             nvidiaSettings = true;
             package = config.boot.kernelPackages.nvidiaPackages.production;
         };

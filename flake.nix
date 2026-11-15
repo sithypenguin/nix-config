@@ -39,9 +39,12 @@
         config = { allowUnfree = true; };
     };
 
-    # Helper function to create NixOS systems for different hosts
-    # When called, it takes in hostname, username (but will default to "sithy") and optional extra modules
-    mkHost = { hostname, username ? "sithy", extraModules ? []}:
+    # Helper function to create NixOS systems for different hosts.
+    #
+    # `profile` selects the role policy from modules/profiles/ — one of base,
+    # graphical, desktop, laptop, server. It is a required argument so the
+    # topology of the fleet is readable from this file alone.
+    mkHost = { hostname, profile, username ? "sithy", extraModules ? []}:
 
         # nixpkgs.lib.nixosSystem is provided by NixOS
         nixpkgs.lib.nixosSystem{
@@ -50,6 +53,7 @@
             # List of NixOS Modules that make up the system configuration
             modules = [
                 ./configuration.nix     # Main system configuration. Applied to all systems that are made this way
+                ./modules/profiles/${profile}.nix  # Role policy, selected here
                 ./hosts/${hostname}     # Host-specific configuration found in ./hosts/${hostname}
 
 
@@ -67,6 +71,11 @@
                     hermesDesktop = hermes-agent.packages.${system}.desktop;
                   };
                 })
+
+                # Tie the account name to the same `username` argument, so
+                # mkHost { username = "alice"; } creates `alice` rather than
+                # leaving users/users.nix pointing at a different account.
+                { mySystem.primaryUser = username; }
             ] ++ extraModules; # Appends any additional modules passed to mkHost
 
             # Pass extra arguments to all NixOS modules
@@ -79,10 +88,13 @@
     {
         # Define available NixOS system configurations
         nixosConfigurations = {
-        sithy-one = mkHost { hostname = "sithy-one"; };
-        sithy-top = mkHost { hostname = "sithy-top"; };
-        # Add more hosts easily:
-        # another-host = mkHost { hostname = "another-host"; username = "differentuser"; };
+        sithy-one = mkHost { hostname = "sithy-one"; profile = "laptop"; };
+        sithy-top = mkHost { hostname = "sithy-top"; profile = "desktop"; };
+        # Add more hosts easily — one line per machine:
+        # sithy-two = mkHost { hostname = "sithy-two"; profile = "desktop"; };
+        # srv-a     = mkHost { hostname = "srv-a";     profile = "server"; };
+        # other     = mkHost { hostname = "other";     profile = "desktop"; username = "differentuser"; };
         };
+
     };
 }

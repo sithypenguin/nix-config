@@ -1,6 +1,6 @@
 # Basic system configuration module
 # Contains fundamental system settings like bootloader, time zone, and locale
-{ config, pkgs, ... }:
+{ config, pkgs, lib, ... }:
 
 {
     # Bootloader configuration
@@ -30,13 +30,15 @@
     # Package configuration
     nixpkgs.config.allowUnfree = true;              # Allow installation of unfree packages
 
-    # Printing support for network and USB printers
-    services.printing = {
+    # Printing support for network and USB printers.
+    # Gated on mySystem.services.printing: a headless server should not run CUPS
+    # or open mDNS ports just because it shares this module.
+    services.printing = lib.mkIf config.mySystem.services.printing {
         enable = true;
         drivers = [ pkgs.gutenprint ];
     };
-    services.ipp-usb.enable = true;
-    services.avahi = {
+    services.ipp-usb.enable = lib.mkIf config.mySystem.services.printing true;
+    services.avahi = lib.mkIf config.mySystem.services.printing {
         enable = true;
         nssmdns4 = true;
         openFirewall = true;

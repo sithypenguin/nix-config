@@ -1,7 +1,10 @@
 { config, pkgs, lib, ... }:
 
 {
-  config = lib.mkIf (config.mySystem.laptop.enable) {
+  # Any host with a display gets audio; headless hosts do not. Gating on
+  # laptop.enable meant the desktop only had PipeWire because Plasma 6 pulls it
+  # in as a default, and it never got security.rtkit (real-time priority).
+  config = lib.mkIf (config.mySystem.environment != null) {
     # Enable sound with pipewire.
     security.rtkit.enable = true;
     services.pipewire = {

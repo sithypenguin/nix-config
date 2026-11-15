@@ -3,8 +3,8 @@
 let
   cfg = config.mySystem.services.ollama;
   ollamaPackage =
-    if config.mySystem.desktop.nvidia then pkgs.ollama-cuda
-    else if config.mySystem.desktop.amd then pkgs.ollama-rocm
+    if config.mySystem.hardware.gpu == "nvidia" then pkgs.ollama-cuda
+    else if config.mySystem.hardware.gpu == "amd" then pkgs.ollama-rocm
     else pkgs.ollama;
 in
 {

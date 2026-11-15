@@ -1,25 +1,28 @@
-{ ... }:
+{ lib, ... }:
 
 # Layer 3 — desktop.
 #
 # Imports graphical.nix (which imports base.nix), then declares only what makes
-# this a desktop: Plasma 6 on AMD, Tailscale, and the two desktop-only packages.
+# this a desktop: Plasma 6, Tailscale, printing, and the two desktop-only
+# packages.
 #
-# To add a third graphical host, copy this file's shape: import a layer,
-# declare deltas. Never repeat the shared policy.
+# GPU vendor is NOT set here — that is mySystem.hardware.gpu, set per host, so
+# two desktops with different cards share this profile.
+#
+# To add another desktop host: one line in flake.nix, plus a hosts/<name>/
+# directory holding hardware-configuration.nix, a hostname, and its GPU vendor.
 
 {
     imports = [ ./graphical.nix ];
 
     mySystem = {
-        desktop.enable = true;
-        desktop.amd = true;
-        desktop.nvidia = false;
+        desktop.enable = lib.mkDefault true;
 
-        environment = "plasma6";
-        networking.tailscale = true;
+        environment = lib.mkDefault "plasma6";
+        networking.tailscale = lib.mkDefault true;
+        services.printing = lib.mkDefault true;
 
-        packages.gui.nomachine = true;
-        packages.gui.podmanDesktop = true;
+        packages.gui.nomachine = lib.mkDefault true;
+        packages.gui.podmanDesktop = lib.mkDefault true;
     };
 }

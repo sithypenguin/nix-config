@@ -1,7 +1,18 @@
-{ lib, pkgs, ... }:
+{ lib, pkgs, config, ... }:
 
 {
     options.mySystem = with lib; {
+        # ========== IDENTITY ==========
+        primaryUser = mkOption {
+            type = types.str;
+            default = "sithy";
+            description = ''
+              The interactive user this host is built for. Used as the default
+              for options that need a user (rootless Podman, lingering) so a new
+              host does not have to repeat it.
+            '';
+        };
+
         # ========== ROLE-LEVEL OPTIONS (System Configuration) ==========
         laptop = {
             enable = mkEnableOption "laptop-specific system configuration";
@@ -9,14 +20,16 @@
 
         desktop = {
             enable = mkEnableOption "desktop-specific system configuration";
-            amd = mkEnableOption "AMD GPU drivers";
-            nvidia = mkEnableOption "Nvidia drivers";
         };
 
         environment = mkOption {
             type = types.nullOr (types.enum [ "hyprland" "plasma6" ]);
-            default = "plasma6";
-            description = "Desktop environment selection. Use null explicitly for headless servers.";
+            default = null;
+            description = ''
+              Desktop environment selection. Defaults to null (headless) so a
+              host that imports only base.nix cannot silently acquire a display
+              manager. Graphical profiles set it explicitly.
+            '';
         };
 
         cursor = {
@@ -51,6 +64,27 @@
 
         hardware = {
             bluetooth = mkEnableOption "Bluetooth support";
+
+            gpu = mkOption {
+                type = types.nullOr (types.enum [ "amd" "nvidia" "intel" ]);
+                default = null;
+                description = ''
+                  Discrete GPU vendor for driver selection. Independent of role:
+                  a headless compute box can set "nvidia" without importing a
+                  graphical profile. null = no discrete GPU drivers (integrated
+                  graphics work through the kernel's modesetting driver).
+                '';
+            };
+
+            nvidiaOpen = mkOption {
+                type = types.bool;
+                default = true;
+                description = ''
+                  Use NVIDIA's open kernel modules instead of the proprietary
+                  ones. Supported on Turing and newer (RTX 20xx+); ignored when
+                  hardware.gpu is not "nvidia".
+                '';
+            };
         };
 
         shell = {
@@ -100,6 +134,9 @@
 
         # ========== SERVICES ==========
         services = {
+            printing = mkEnableOption "CUPS printing and mDNS printer discovery";
+            openssh = mkEnableOption "OpenSSH server";
+
             ollama = {
                 enable = mkEnableOption "Ollama LLM service";
                 port = mkOption {
@@ -118,7 +155,8 @@
                 };
                 user = mkOption {
                     type = types.str;
-                    default = "";
+                    default = config.mySystem.primaryUser;
+                    defaultText = lib.literalExpression "config.mySystem.primaryUser";
                     example = "sithy";
                     description = "User that runs rootless Podman. Gets subuid/subgid ranges, lingering and the user Podman socket. Required when rootless = true.";
                 };

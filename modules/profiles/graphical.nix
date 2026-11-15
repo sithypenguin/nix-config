@@ -1,4 +1,4 @@
-{ ... }:
+{ lib, ... }:
 
 # Layer 2 — anything with a display.
 #
@@ -8,30 +8,33 @@
 #
 # Headless hosts must NOT import this: it pulls in GUI packages and a cursor
 # theme that have nothing to attach to.
+#
+# GPU vendor is deliberately absent — that is mySystem.hardware.gpu, set per
+# host, so a headless compute box can carry an NVIDIA card without a desktop.
 
 {
     imports = [ ./base.nix ];
 
     mySystem = {
-        cursor.enable = true;
+        cursor.enable = lib.mkDefault true;
 
-        gaming.steam = true;
+        gaming.steam = lib.mkDefault true;
 
-        development.godot = true;
-        development.nixLd = true;
+        development.godot = lib.mkDefault true;
+        development.nixLd = lib.mkDefault true;
 
-        packages.network.wireless = true;
-        packages.network.bluetooth = true;
+        packages.network.wireless = lib.mkDefault true;
+        packages.network.bluetooth = lib.mkDefault true;
 
-        packages.gui.base = true;
-        packages.gui.multimedia = true;
-        packages.gui.office = true;
-        packages.gui.comms = true;
-        packages.gui.design = true;
-        packages.gui.tui = true;
-        packages.gui.hermesDesktop = true;
+        packages.gui.base = lib.mkDefault true;
+        packages.gui.multimedia = lib.mkDefault true;
+        packages.gui.office = lib.mkDefault true;
+        packages.gui.comms = lib.mkDefault true;
+        packages.gui.design = lib.mkDefault true;
+        packages.gui.tui = lib.mkDefault true;
+        packages.gui.hermesDesktop = lib.mkDefault true;
 
-        packages.gaming.steam = true;
-        packages.development.godot = true;
+        packages.gaming.steam = lib.mkDefault true;
+        packages.development.godot = lib.mkDefault true;
     };
 }

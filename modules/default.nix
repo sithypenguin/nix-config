@@ -12,6 +12,7 @@
         ./systemConfig/networking.nix
         ./systemConfig/nvidia.nix
         ./systemConfig/ollama.nix
+        ./systemConfig/openssh.nix
         ./systemConfig/sysConfig.nix
         ./systemConfig/tailscale.nix
         ./systemConfig/zsh.nix

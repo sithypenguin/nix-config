@@ -1,7 +1,7 @@
 { config, pkgs, lib, ... }:
 
 {
-  config = lib.mkIf (config.mySystem.desktop.enable && config.mySystem.desktop.amd && !config.mySystem.desktop.nvidia) {
+  config = lib.mkIf (config.mySystem.hardware.gpu == "amd") {
     hardware.graphics = {
       enable = true;
       enable32Bit = true;
