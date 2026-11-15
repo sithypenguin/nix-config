@@ -85,6 +85,7 @@
                 design = mkEnableOption "design software (prusa-slicer)";
                 tui = mkEnableOption "terminal UI apps (ncspot)";
                 nomachine = mkEnableOption "NoMachine client package";
+                hermesDesktop = mkEnableOption "Hermes Agent desktop client (from the upstream flake)";
                 podmanDesktop = mkEnableOption "Podman Desktop GUI client";
             };
 
