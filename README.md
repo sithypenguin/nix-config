@@ -167,7 +167,7 @@ host config → Home Manager → packages → result.
 sudo nixos-rebuild switch --flake .#sithy-one
          ↓
     flake.nix
-    ├─ mkHost { hostname = "sithy-one"; }
+    ├─ mkHost { hostname = "sithy-one"; profile = "laptop"; }
     │  ├─ configuration.nix
     │  │  ├─ modules/default.nix
     │  │  │  ├─ modules/systemConfig/*  (system services, audio, display, fonts)
@@ -198,10 +198,14 @@ sudo nixos-rebuild switch --flake .#sithy-one
 | Profile | Imports | Adds | Used by |
 |---|---|---|---|
 | `base.nix` | — | zsh, base/CLI/dev packages, network base | every host |
-| `graphical.nix` | `base.nix` | cursor, gaming, godot, nix-ld, GUI/network packages | any host with a display |
-| `desktop.nix` | `graphical.nix` | `desktop.enable/amd/nvidia`, Plasma 6, Tailscale, NoMachine, Podman Desktop | `sithy-top` |
+| `graphical.nix` | `base.nix` | cursor, NetworkManager, gaming, godot, nix-ld, GUI/network packages | any host with a display |
+| `desktop.nix` | `graphical.nix` | `desktop.enable`, Plasma 6, Tailscale, printing, NoMachine, Podman Desktop | `sithy-top` |
 | `laptop.nix` | `graphical.nix` | `laptop.enable`, Bluetooth, Hyprland, NoMachine off | `sithy-one` |
-| `server.nix` | `base.nix` | `environment = null`, Podman rootless | any headless host |
+| `server.nix` | `base.nix` | `environment = null`, SSH, NetworkManager, Podman rootless | any headless host |
+
+GPU vendor is not part of any profile. It is `mySystem.hardware.gpu`, set per host, so
+two desktops with different cards share `desktop.nix` and a headless compute box can
+carry a discrete card without importing a graphical layer.
 
 Reading a leaf profile tells you everything that host differs by. Reading the chain
 tells you everything it inherits. There is no third place to look.
@@ -599,32 +603,36 @@ sudo nixos-rebuild switch --flake .#sithy-one
    cp hardware-configuration.nix hosts/sithy-three/
    ```
 
-3. **Write** `hosts/sithy-three/default.nix`:
+3. **Write** `hosts/sithy-three/default.nix` — profile comes from `flake.nix`, so this
+   file holds only machine-specific facts:
    ```nix
    { ... }:
    {
-     imports = [
-       ./hardware-configuration.nix
-       ../../modules/profiles/server.nix   # or desktop.nix / laptop.nix
-     ];
+     imports = [ ./hardware-configuration.nix ];
+
+     mySystem = {
+       hardware.gpu = "intel";        # "amd" | "nvidia" | "intel" | null
+       services.podman.enable = true;
+     };
 
      networking.hostName = "sithy-three";
    }
    ```
 
-4. **Add one line to `flake.nix`**:
+4. **Add one line to `flake.nix`** — the `profile` argument selects the role:
    ```nix
    nixosConfigurations = {
-     sithy-one   = mkHost { hostname = "sithy-one"; };
-     sithy-top   = mkHost { hostname = "sithy-top"; };
-     sithy-three = mkHost { hostname = "sithy-three"; };  # ← add
+     sithy-one   = mkHost { hostname = "sithy-one"; profile = "laptop"; };
+     sithy-top   = mkHost { hostname = "sithy-top"; profile = "desktop"; };
+     sithy-three = mkHost { hostname = "sithy-three"; profile = "server"; };  # ← add
    };
    ```
 
-5. **Add host-specific overrides** on top of the profile if needed:
+5. **Add host-specific overrides** on top of the profile if needed. Profile values use
+   `lib.mkDefault`, so a plain assignment overrides them without `lib.mkForce`:
    ```nix
-   mySystem.services.podman.user = "sithy";
    mySystem.services.ollama.enable = true;
+   mySystem.packages.gui.nomachine = false;
    ```
 
 6. **Test without building**:
@@ -643,11 +651,34 @@ sudo nixos-rebuild switch --flake .#sithy-one
 - Copied hardware config from another machine — regenerate on the target
 - `networking.hostName` does not match the flake attribute name
 - Wrong profile for the hardware
-- Rootless Podman without `mySystem.services.podman.user` — evaluation fails with a
-  clear assertion
+- A `username` that has no matching `users/<name>/home.nix` — evaluation fails with
+  `Path 'users/<name>/home.nix' does not exist in Git repository`
 
 **Note**: `nix flake check` only sees git-tracked files. A brand-new host directory
 must be `git add`ed before it evaluates.
+
+**Different account per host**: `mkHost` takes `username`, which drives both the Home
+Manager user and `mySystem.primaryUser`:
+
+```nix
+srv-media = mkHost { hostname = "srv-media"; profile = "server"; username = "media"; };
+```
+
+That requires `users/media/home.nix` to exist, and `users/users.nix` creates the
+account from `mySystem.primaryUser`, so the two cannot disagree.
+
+**`extraModules`**: `mkHost` also accepts a list of extra modules, for a one-off host
+that needs something no profile expresses:
+
+```nix
+odd-box = mkHost {
+  hostname = "odd-box";
+  profile = "server";
+  extraModules = [ ./hosts/odd-box/extra.nix ];
+};
+```
+
+Prefer a profile change when more than one host needs it.
 
 ---
 
@@ -924,7 +955,50 @@ nix eval .#nixosConfigurations.sithy-top.config.fonts.fontconfig.defaultFonts --
 ```
 
 `nix flake check` warns "Git tree is dirty" with uncommitted edits. Harmless — it
-reads the working tree.
+reads the working tree. It does, however, only see git-tracked files, so a new module
+must be `git add`ed before it evaluates.
+
+`nix flake check` also runs the `checks` output. `server-profile-is-headless` fails the
+build if any host with `environment == null` carries a GUI package:
+
+```
+GUI packages on headless hosts: srv-c: vscode-1.144.0, srv-c: firefox-159.0.1
+```
+
+---
+
+## Garbage collection
+
+`modules/systemConfig/sysConfig.nix` enables automatic collection on every host:
+
+```nix
+nix.gc = {
+    automatic = true;
+    dates = "weekly";
+    options = "--delete-older-than 14d";
+    persistent = true;
+};
+nix.settings.auto-optimise-store = true;
+```
+
+- **weekly + 14d** keeps at least one prior generation as a rollback target.
+  `--delete-old` would keep only the current one and remove that safety net.
+- **persistent** makes the timer catch up after downtime, which matters for a laptop
+  and homelab boxes that are not always on.
+- **auto-optimise-store** hard-links identical store paths so repeated builds stop
+  multiplying copies.
+
+Check what would be removed without removing it:
+
+```bash
+sudo nix-collect-garbage --dry-run --delete-older-than 14d
+```
+
+List current generations:
+
+```bash
+sudo nix-env --list-generations --profile /nix/var/nix/profiles/system
+```
 
 ---
 
@@ -1026,13 +1100,17 @@ All options are declared in `modules/systemConfig/host-options.nix`.
 
 | Option | Type | Read by |
 |---|---|---|
-| `mySystem.laptop.enable` | bool | `audio.nix`, `display.nix`, `networking.nix` |
-| `mySystem.desktop.enable` | bool | `amd.nix`, `nvidia.nix`, `networking.nix`, `tailscale.nix` |
-| `mySystem.desktop.amd` | bool | `amd.nix` |
-| `mySystem.desktop.nvidia` | bool | `nvidia.nix`, `ollama.nix` |
+| `mySystem.primaryUser` | str | `users/users.nix`, `services/podman.nix` default |
+| `mySystem.laptop.enable` | bool | `audio.nix`, `display.nix` |
+| `mySystem.desktop.enable` | bool | `tailscale.nix` |
+| `mySystem.hardware.gpu` | `null` \| `"amd"` \| `"nvidia"` \| `"intel"` | `amd.nix`, `nvidia.nix`, `intel.nix`, `ollama.nix` |
+| `mySystem.hardware.nvidiaOpen` | bool (default true) | `nvidia.nix` |
 | `mySystem.hardware.bluetooth` | bool | `bluetooth.nix` |
-| `mySystem.environment` | `null` \| `"hyprland"` \| `"plasma6"` | `display.nix`, `hyprland.nix`, `home.nix` |
+| `mySystem.environment` | `null` \| `"hyprland"` \| `"plasma6"` | `display.nix`, `hyprland.nix`, `audio.nix`, `cachix.nix`, `home.nix` |
 | `mySystem.cursor.*` | package / str / int | `home.nix` |
+
+`environment` defaults to `null`, so a host that imports only `base.nix` cannot
+silently acquire a display manager.
 
 ### Features
 
@@ -1044,8 +1122,14 @@ All options are declared in `modules/systemConfig/host-options.nix`.
 | `mySystem.development.nixLd` | `nix-ld.nix` |
 | `mySystem.shell.zsh` | `zsh.nix` |
 | `mySystem.networking.tailscale` | `tailscale.nix` |
+| `mySystem.networking.networkmanager` | `networking.nix`, `users/users.nix` |
+| `mySystem.services.printing` | `sysConfig.nix` |
+| `mySystem.services.openssh` | `openssh.nix` |
 | `mySystem.services.ollama.{enable,port}` | `ollama.nix` |
 | `mySystem.services.podman.{enable,rootless,user,compose}` | `services/podman.nix` |
+
+`services.podman.user` defaults to `mySystem.primaryUser`, so a host does not repeat
+the account name.
 
 ### User packages
 
