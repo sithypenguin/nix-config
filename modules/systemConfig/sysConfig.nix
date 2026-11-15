@@ -30,6 +30,24 @@
     # Package configuration
     nixpkgs.config.allowUnfree = true;              # Allow installation of unfree packages
 
+    # Garbage collection. Without this the store grows without bound and /boot
+    # can fill up with old generations.
+    #
+    #   weekly + 14d  keeps at least one prior generation as a rollback target,
+    #                 which --delete-old would not.
+    #   persistent    catches up after downtime, so a machine that is asleep at
+    #                 the timer's slot still collects.
+    nix.gc = {
+        automatic = true;
+        dates = "weekly";
+        options = "--delete-older-than 14d";
+        persistent = true;
+    };
+
+    # Hard-link identical store paths, so repeated builds stop multiplying
+    # copies of the same files.
+    nix.settings.auto-optimise-store = true;
+
     # Printing support for network and USB printers.
     # Gated on mySystem.services.printing: a headless server should not run CUPS
     # or open mDNS ports just because it shares this module.
