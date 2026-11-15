@@ -21,6 +21,10 @@
         hermes-agent = {
             url = "github:NousResearch/hermes-agent";
             inputs.nixpkgs.url = "github:NixOS/nixpkgs/02c087f3fe673c9e317f206a627cb6b910336dbe";
+            # Share this repo's Home Manager rather than pulling a second
+            # revision: two HM versions in one evaluation is a latent
+            # inconsistency, and nothing here uses hermes-agent's HM module.
+            inputs.home-manager.follows = "home-manager";
         };
     };
 
