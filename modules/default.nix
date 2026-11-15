@@ -8,6 +8,7 @@
         ./systemConfig/bluetooth.nix
         ./systemConfig/display.nix
         ./systemConfig/host-options.nix
+        ./systemConfig/intel.nix
         ./systemConfig/nix-ld.nix
         ./systemConfig/networking.nix
         ./systemConfig/nvidia.nix
