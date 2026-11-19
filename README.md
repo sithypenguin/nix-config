@@ -2,13 +2,49 @@
 
 A modular, reproducible NixOS setup for **multiple hosts** using Flakes + Home Manager.
 
-- **sithy-top**: Desktop running Plasma 6 (full DE), AMD GPU, gaming
-- **sithy-one**: Laptop running Hyprland (window manager), Bluetooth
-- **server**: Headless profile, ready for whenever a third machine appears
+| Host | Role | Profile | Desktop | GPU |
+|---|---|---|---|---|
+| `sithy-top` | Desktop | `desktop.nix` | Plasma 6 | AMD (RDNA3) |
+| `sithy-one` | Laptop | `laptop.nix` | Hyprland | integrated |
+| *future* | Server | `server.nix` | none | any (`hardware.gpu`) |
 
 **For newcomers to NixOS/Flakes**: this repo is written to be read. It teaches how
 hosts are built from modules, how custom options control behaviour conditionally,
 how Home Manager keeps user packages separate, and why the result is reproducible.
+
+---
+
+## Mental model in one page
+
+If you remember nothing else, remember these five sentences.
+
+1. **`flake.nix` lists the machines.** Each line is one host, and it names the role:
+   ```nix
+   sithy-top = mkHost { hostname = "sithy-top"; profile = "desktop"; };
+   ```
+2. **The profile is the role.** `modules/profiles/<profile>.nix` sets `mySystem.*`
+   booleans. Profiles chain: `base → graphical → desktop|laptop`, and `server → base`.
+3. **Modules read those booleans.** Every system module is wrapped in
+   `config = lib.mkIf <option> { ... }`, so it contributes nothing when the option is off.
+4. **`users/sithy/home.nix` maps booleans to package modules.** One `lib.optionals`
+   line per `mySystem.packages.*` category.
+5. **A host file holds only machine facts.** Hardware config, hostname, GPU vendor,
+   and per-host overrides. Never shared policy.
+
+Everything else in this README is detail hanging off those five points.
+
+### Where do I look for…?
+
+| I want to change… | Edit |
+|---|---|
+| which packages a *role* gets | `modules/profiles/*.nix` |
+| what a *single machine* gets | `hosts/<name>/default.nix` |
+| a system service (audio, network, drivers) | `modules/systemConfig/*.nix` |
+| a user package list | `modules/packages/<category>/*.nix` |
+| the set of hosts that exist | `flake.nix` → `nixosConfigurations` |
+| which options exist at all | `modules/systemConfig/host-options.nix` |
+| shell aliases, dotfile symlinks | `users/sithy/home.nix` |
+| a Hyprland config file | `dotfiles/hyprland/…` then rebuild |
 
 ---
 
@@ -22,6 +58,20 @@ how Home Manager keeps user packages separate, and why the result is reproducibl
    sudo nixos-rebuild switch --flake .#sithy-one    # or sithy-top
    ```
 3. Reboot and choose your DE at login.
+
+### Rebuild aliases
+
+`users/sithy/home.nix` defines three aliases, usable from any directory:
+
+```zsh
+nix-flake-dry      # nixos-rebuild dry-build  — evaluation only, no sudo
+nix-flake-test     # sudo nixos-rebuild test — activates, no boot entry
+nix-flake-switch   # sudo nixos-rebuild switch — activates and adds a generation
+```
+
+They expand to an absolute flake path and `#$HOST`. `$HOST` is zsh's hostname
+variable; `$HOSTNAME` is a bash-ism and is empty in zsh, which would silently
+degrade the reference to a bare `.#`.
 
 ---
 
@@ -75,8 +125,8 @@ That worked for two desktops but had no answer for a headless host: a server wan
 `base.nix` (no display required) and `graphical.nix` (display required) means the
 server imports the floor and stops, while desktops continue up the chain.
 
-The proof that this works is in the verification section: a synthetic `test-server`
-host evaluates with 48 packages, zero GUI applications, and no display manager.
+The proof that this works is in the verification section: a synthetic server host
+evaluates with 48 packages, zero GUI applications, and no display manager.
 
 ### Execution Flow (Mermaid Diagram)
 
@@ -100,9 +150,9 @@ graph TD
     F --> H["modules/gaming/steam.nix<br/>conditional on mySystem"]:::sysModules
     F --> I["users/users.nix<br/>system-level user defs"]:::sysModules
 
-    D --> J["hosts/sithy-one/default.nix<br/>host-specific config"]:::hostFiles
+    D --> J["hosts/sithy-one/default.nix<br/>machine facts only"]:::hostFiles
     J --> K["hardware-configuration.nix<br/>auto-detected hardware"]:::hostFiles
-    J --> L["modules/profiles/laptop.nix<br/>sets mySystem.* options"]:::hostFiles
+    C --> L["modules/profiles/laptop.nix<br/>sets mySystem.* options"]:::hostFiles
     L --> L2["graphical.nix<br/>display + GUI policy"]:::hostFiles
     L2 --> L3["base.nix<br/>shell + CLI floor"]:::hostFiles
 
@@ -367,6 +417,12 @@ Home Manager is a NixOS module that builds user-level configuration. It manages:
 3. Home Manager imports package groups and DE modules from them
 4. Everything still goes through `sudo nixos-rebuild` — Home Manager is a NixOS
    module in this flake, not a separate tool
+
+**One package set, not two.** `home-manager.useGlobalPkgs = true` in `flake.nix` makes
+Home Manager reuse the system's `pkgs` instead of building its own. That is why
+`allowUnfree` only needs to be declared in `modules/systemConfig/sysConfig.nix`: Home
+Manager inherits it. The one exception is `pkgs-unstable` in `flake.nix`, which is a
+separate instance and sets its own.
 
 **Difference from stand-alone Home Manager**: normally you run `home-manager switch`
 separately. Here one command rebuilds both.
@@ -771,13 +827,13 @@ risk of breaking list syntax.
    grep "mkEnableOption\|mkOption" modules/systemConfig/host-options.nix
    ```
 
-2. **Edit the profile**. Because `gaming.steam` is set in `graphical.nix`, a leaf
-   profile overrides it:
+2. **Override it in the host file.** Profile values use `lib.mkDefault`, so a plain
+   assignment in `hosts/<name>/default.nix` wins without `lib.mkForce`:
    ```nix
-   # modules/profiles/desktop.nix
+   # hosts/sithy-top/default.nix
    mySystem.gaming.steam = false;
    ```
-   Or disable it for every graphical host by editing `graphical.nix` directly.
+   To disable it for every graphical host instead, edit `modules/profiles/graphical.nix`.
 
 3. **Rebuild and verify**:
    ```bash
@@ -1033,24 +1089,26 @@ nix-config/
 │   │
 │   ├── profiles/                # Policy chain
 │   │   ├── base.nix             #   floor: shell + CLI
-│   │   ├── graphical.nix        #   + display, GUI, gaming
-│   │   ├── desktop.nix          #   + Plasma 6, AMD, Tailscale
+│   │   ├── graphical.nix        #   + display, GUI, gaming, NetworkManager
+│   │   ├── desktop.nix          #   + Plasma 6, Tailscale, printing
 │   │   ├── laptop.nix           #   + Hyprland, Bluetooth
-│   │   └── server.nix           #   headless: base only + Podman
+│   │   └── server.nix           #   headless: base + SSH, NetworkManager, Podman
 │   │
 │   ├── systemConfig/
 │   │   ├── host-options.nix     # Every mySystem option, declared once
 │   │   ├── fonts.nix            # Font packages + fontconfig aliases
-│   │   ├── audio.nix            # PipeWire
+│   │   ├── audio.nix            # PipeWire (any host with a display)
 │   │   ├── bluetooth.nix        # Bluetooth hardware
 │   │   ├── display.nix          # X11, SDDM, Plasma 6
 │   │   ├── networking.nix       # NetworkManager, KDE Connect
-│   │   ├── amd.nix              # AMDGPU
-│   │   ├── nvidia.nix           # NVIDIA drivers
+│   │   ├── amd.nix              # AMDGPU        (hardware.gpu = "amd")
+│   │   ├── nvidia.nix           # NVIDIA        (hardware.gpu = "nvidia")
+│   │   ├── intel.nix            # Intel iGPU    (hardware.gpu = "intel")
 │   │   ├── hyprland.nix         # Hyprland system module
 │   │   ├── nix-ld.nix           # Dynamic linker shim
 │   │   ├── ollama.nix           # Ollama service
-│   │   ├── sysConfig.nix        # Bootloader, locale, timezone, printing
+│   │   ├── openssh.nix          # OpenSSH server
+│   │   ├── sysConfig.nix        # Bootloader, locale, timezone, printing, GC
 │   │   ├── tailscale.nix        # Tailscale service
 │   │   └── zsh.nix              # Default shell
 │   │
@@ -1078,6 +1136,14 @@ nix-config/
 │   └── sithy/home.nix           # Home Manager entry point
 │
 └── obsolete/                    # Superseded files, kept for reference (gitignored)
+```
+
+Note: `nix fmt` with no arguments walks the whole tree and aborts on
+`obsolete/gui-packages.nix`, which is a deliberately non-parsing stub. Format the
+tracked files instead:
+
+```bash
+nix fmt $(git ls-files '*.nix')
 ```
 
 ---
@@ -1191,7 +1257,7 @@ mySystem.services.ollama.enable = true;
 1. [flake.nix](flake.nix) — inputs, `mkHost`, outputs
 2. [modules/profiles/base.nix](modules/profiles/base.nix) — the floor
 3. [modules/profiles/graphical.nix](modules/profiles/graphical.nix) — what a display adds
-4. [modules/profiles/desktop.nix](modules/profiles/desktop.nix) / [laptop.nix](modules/profiles/laptop.nix) — deltas
+4. [modules/profiles/desktop.nix](modules/profiles/desktop.nix) / [laptop.nix](modules/profiles/laptop.nix) / [server.nix](modules/profiles/server.nix) — deltas
 5. [modules/systemConfig/host-options.nix](modules/systemConfig/host-options.nix) — every option
 6. [modules/default.nix](modules/default.nix) — the import list
 7. [hosts/sithy-top/default.nix](hosts/sithy-top/default.nix) — host wiring
